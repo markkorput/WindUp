@@ -1,5 +1,6 @@
 class @Motion
   constructor: (opts) ->
+
     @options = opts || {}
     @outputel = document.getElementById('output')
     @outputel.setAttribute('style', 'display:block;') if @outputel && @options.log == true
@@ -28,9 +29,33 @@ class @Motion
     @orienter = new Orienter()
     @pitcher = new Pitcher()
 
+    #
+    # GUI
+    #
+
+    @gui = new dat.GUI()
+    data = new ->
+      @pitch = 0
+      @audio = true
+
+    folder = @gui.addFolder 'Params'
+    folder.open()
+    
+    item = folder.add(data, 'audio')
+    item.onChange (val) =>
+      console.log 'toggling'
+      @pitcher.toggle()
+
+    item = folder.add(data, 'pitch', -100, 100)
+    # item.onChange (val) => @trigger('gui-pitch', val)
+
+    #
+    # For development reference console.log some stuff
+    #
 
     console.log @two
     console.log @circle
+    console.log @gui
 
   output: (msg) ->
     @msgs ||= []

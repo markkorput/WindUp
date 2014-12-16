@@ -9,6 +9,19 @@ class @Pitcher
       sprite:
         piece1: [3000, 1000]
 
+    @isPlaying = false
+
   start: ->
-    console.log 'Starting audio'
     @sound.play('piece1');
+    @isPlaying = true
+
+  stop: ->
+    @sound.stop()
+    @isPlaying = false
+
+  toggle: ->
+    if @isPlaying == true
+      @stop()
+    else
+      @start()
+

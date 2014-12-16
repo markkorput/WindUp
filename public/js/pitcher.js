@@ -11,11 +11,25 @@
           piece1: [3000, 1000]
         }
       });
+      this.isPlaying = false;
     }
 
     Pitcher.prototype.start = function() {
-      console.log('Starting audio');
-      return this.sound.play('piece1');
+      this.sound.play('piece1');
+      return this.isPlaying = true;
+    };
+
+    Pitcher.prototype.stop = function() {
+      this.sound.stop();
+      return this.isPlaying = false;
+    };
+
+    Pitcher.prototype.toggle = function() {
+      if (this.isPlaying === true) {
+        return this.stop();
+      } else {
+        return this.start();
+      }
     };
 
     return Pitcher;

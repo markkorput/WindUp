@@ -6,6 +6,8 @@
     function Motion(opts) {
       this.update = __bind(this.update, this);
       this.onMotion = __bind(this.onMotion, this);
+      var data, folder, item,
+        _this = this;
       this.options = opts || {};
       this.outputel = document.getElementById('output');
       if (this.outputel && this.options.log === true) {
@@ -29,8 +31,22 @@
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
+      this.gui = new dat.GUI();
+      data = new function() {
+        this.pitch = 0;
+        return this.audio = true;
+      };
+      folder = this.gui.addFolder('Params');
+      folder.open();
+      item = folder.add(data, 'audio');
+      item.onChange(function(val) {
+        console.log('toggling');
+        return _this.pitcher.toggle();
+      });
+      item = folder.add(data, 'pitch', -100, 100);
       console.log(this.two);
       console.log(this.circle);
+      console.log(this.gui);
     }
 
     Motion.prototype.output = function(msg) {
