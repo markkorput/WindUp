@@ -5,7 +5,6 @@
   this.Motion = (function() {
     function Motion(opts) {
       this.update = __bind(this.update, this);
-      this.onOrientation = __bind(this.onOrientation, this);
       this.onMotion = __bind(this.onMotion, this);
       this.options = opts;
       this.outputel = document.getElementById('output');
@@ -22,10 +21,13 @@
       this.circle.stroke = 'orangered';
       this.circle.linewidth = 5;
       this.two.update();
-      this.c = this.two.makeCircle(this.two.width * 0.5, this.two.height * 0.5 + 30, 20);
+      this.c = this.two.makeCircle(0, -80, 20);
       this.c.fill = '#0080FF';
       this.c.stroke = 'blue';
-      this.c.linewidth = 5;
+      this.c.linewidth = 3;
+      this.group = this.two.makeGroup(this.c);
+      this.group.translation.set(this.two.width / 2, this.two.height / 2);
+      this.orienter = new Orienter();
     }
 
     Motion.prototype.output = function(msg) {
@@ -40,17 +42,8 @@
     };
 
     Motion.prototype.start = function() {
+      this.orienter.start();
       this.output("Starting motion sensor...");
-      if (!window.DeviceMotionEvent) {
-        this.output("Motion events not supported on this device...");
-      } else {
-        window.ondevicemotion = this.onMotion;
-      }
-      if (!window.DeviceOrientationEvent) {
-        this.output("Orientation events not supported");
-      } else {
-        window.addEventListener('deviceorientation', this.onOrientation);
-      }
       this.two.bind('update', this.update);
       return this.two.play();
     };
@@ -62,17 +55,13 @@
       return this.lastEvent = event;
     };
 
-    Motion.prototype.onOrientation = function(event) {
-      if (!this.lastOrientation) {
-        console.log(event);
-      }
-      return this.lastOrientation = event;
-    };
-
     Motion.prototype.update = function(frameCount) {
-      if (this.lastOrientation) {
-        return this.output('Rot: ' + [this.lastOrientation.alpha, this.lastOrientation.beta, this.lastOrientation.gamma].join(', '));
+      var event;
+      event = this.orienter.last();
+      if (event) {
+        this.output('Rot: ' + [event.alpha, event.beta, event.gamma].join(', '));
       }
+      return this.group.rotation = event.alpha / 180 * Math.PI;
     };
 
     return Motion;

@@ -16,11 +16,16 @@ class @Motion
 
     @two.update();
 
-    @c = @two.makeCircle(@two.width*0.5, @two.height*0.5+30, 20)
+
+    @c = @two.makeCircle(0, -80, 20)
     @c.fill = '#0080FF'
     @c.stroke = 'blue'
-    @c.linewidth = 5;
+    @c.linewidth = 3;
 
+    @group = @two.makeGroup(@c)
+    @group.translation.set(@two.width/2, @two.height/2)
+
+    @orienter = new Orienter()
 
   output: (msg) ->
     @msgs ||= []
@@ -33,17 +38,14 @@ class @Motion
     #  console.log msg
 
   start: ->
+    @orienter.start()
+
     @output "Starting motion sensor..."
 
-    if !window.DeviceMotionEvent
-      @output "Motion events not supported on this device..."
-    else
-      window.ondevicemotion = @onMotion
-
-    if !window.DeviceOrientationEvent
-      @output "Orientation events not supported"
-    else
-      window.addEventListener('deviceorientation', @onOrientation)
+    # if !window.DeviceMotionEvent
+    #   @output "Motion events not supported on this device..."
+    # else
+    #   window.ondevicemotion = @onMotion
 
     # setInterval @update, 100
     @two.bind 'update', @update
@@ -57,15 +59,12 @@ class @Motion
 
     @lastEvent = event
 
-  onOrientation: (event) =>
-    if !@lastOrientation
-      console.log event
-
-    @lastOrientation = event
-
   update: (frameCount) =>
     #if @lastEvent
     #  @output 'Motion: ' + @lastEvent.accelerationIncludingGravity.x + ',' + @lastEvent.accelerationIncludingGravity.y
 
-    if @lastOrientation
-      @output 'Rot: ' + [@lastOrientation.alpha, @lastOrientation.beta, @lastOrientation.gamma].join(', ')
+    event = @orienter.last()
+    if event 
+      @output 'Rot: ' + [event.alpha, event.beta, event.gamma].join(', ')
+
+    @group.rotation = event.alpha / 180 * Math.PI
