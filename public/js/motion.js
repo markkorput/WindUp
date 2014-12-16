@@ -5,7 +5,6 @@
   this.Motion = (function() {
     function Motion(opts) {
       this.update = __bind(this.update, this);
-      this.onMotion = __bind(this.onMotion, this);
       var data, folder, item,
         _this = this;
       this.options = opts || {};
@@ -33,17 +32,26 @@
       this.pitcher = new Pitcher();
       this.gui = new dat.GUI();
       data = new function() {
-        this.pitch = 0;
+        this.rotation = 0;
         return this.audio = true;
       };
       folder = this.gui.addFolder('Params');
       folder.open();
       item = folder.add(data, 'audio');
       item.onChange(function(val) {
-        console.log('toggling');
         return _this.pitcher.toggle();
       });
-      item = folder.add(data, 'pitch', -100, 100);
+      item = folder.add(data, 'rotation', -1080, 1080);
+      item.onChange(function(val) {
+        return _this.gui_rotation = val;
+      });
+      item.listen();
+      folder.add({
+        ResetRot: function() {
+          _this.gui_rotation = void 0;
+          return data.rotation = 0;
+        }
+      }, 'ResetRot');
       console.log(this.two);
       console.log(this.circle);
       console.log(this.gui);
@@ -63,26 +71,17 @@
     Motion.prototype.start = function() {
       this.orienter.start();
       this.pitcher.start();
-      this.output("Starting motion sensor...");
       this.two.bind('update', this.update);
       return this.two.play();
     };
 
-    Motion.prototype.onMotion = function(event) {
-      if (!this.lastEvent) {
-        console.log(event);
-      }
-      return this.lastEvent = event;
-    };
-
     Motion.prototype.update = function(frameCount) {
-      var event;
-      event = this.orienter.last();
-      if (event) {
-        this.rotator.rotation = event.alpha / 180 * Math.PI;
-        this.output('Cumulative: ' + this.orienter.cumulative + ' (' + this.orienter.rotationIndex + ')');
-        return this.scaler.scale = Math.abs(this.orienter.cumulative / 270);
-      }
+      var value;
+      value = this.gui_rotation || this.orienter.cumulative;
+      this.output('Rot: ' + value + ' (' + this.orienter.rotationIndex + ')');
+      this.rotator.rotation = value / 180 * Math.PI;
+      this.scaler.scale = Math.abs(value / 270);
+      return this.pitcher.apply(Math.min(1.0, Math.abs(value) / 1080));
     };
 
     return Motion;

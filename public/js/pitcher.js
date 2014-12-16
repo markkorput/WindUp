@@ -32,6 +32,10 @@
       }
     };
 
+    Pitcher.prototype.apply = function(value) {
+      return this.sound.volume(0.1 + value * 0.9);
+    };
+
     return Pitcher;
 
   })();

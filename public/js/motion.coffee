@@ -35,19 +35,21 @@ class @Motion
 
     @gui = new dat.GUI()
     data = new ->
-      @pitch = 0
+      @rotation = 0
       @audio = true
 
     folder = @gui.addFolder 'Params'
     folder.open()
-    
+
     item = folder.add(data, 'audio')
     item.onChange (val) =>
-      console.log 'toggling'
       @pitcher.toggle()
 
-    item = folder.add(data, 'pitch', -100, 100)
-    # item.onChange (val) => @trigger('gui-pitch', val)
+    item = folder.add(data, 'rotation', -1080, 1080)
+    item.onChange (val) => @gui_rotation = val
+    item.listen()
+
+    folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
 
     #
     # For development reference console.log some stuff
@@ -57,49 +59,28 @@ class @Motion
     console.log @circle
     console.log @gui
 
+
   output: (msg) ->
+
     @msgs ||= []
     @msgs.unshift(msg)
     @msgs.pop() if @msgs.length > 10
 
     if @outputel && @options.log == true
       @outputel.innerHTML = @msgs.join('\n')
-    # else
-    #  console.log msg
 
   start: ->
     @orienter.start()
     @pitcher.start()
 
-    @output "Starting motion sensor..."
-
-    # if !window.DeviceMotionEvent
-    #   @output "Motion events not supported on this device..."
-    # else
-    #   window.ondevicemotion = @onMotion
-
-    # setInterval @update, 100
     @two.bind 'update', @update
     @two.play()
 
-  onMotion: (event) =>
-    # console.log 'got motion:', event
-
-    if !@lastEvent
-      console.log event
-
-    @lastEvent = event
-
   update: (frameCount) =>
-    #if @lastEvent
-    #  @output 'Motion: ' + @lastEvent.accelerationIncludingGravity.x + ',' + @lastEvent.accelerationIncludingGravity.y
+    value = @gui_rotation || @orienter.cumulative
+    @output 'Rot: '+ value + ' ('+@orienter.rotationIndex+')'
 
-    event = @orienter.last()
-
-    if event 
-        # @output 'Rot: ' + [event.alpha, event.beta, event.gamma].join(', ')
-        @rotator.rotation = event.alpha / 180 * Math.PI
-        @output 'Cumulative: '+@orienter.cumulative + ' ('+@orienter.rotationIndex+')'
-        @scaler.scale = Math.abs @orienter.cumulative / 270
-
+    @rotator.rotation = value / 180 * Math.PI
+    @scaler.scale = Math.abs value / 270
+    @pitcher.apply(Math.min(1.0, Math.abs(value) / 1080))
 

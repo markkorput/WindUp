@@ -25,3 +25,5 @@ class @Pitcher
     else
       @start()
 
+  apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
+    @sound.volume(0.1 + value * 0.9)
