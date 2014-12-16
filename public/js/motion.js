@@ -53,13 +53,20 @@
         }
       }, 'ResetRot');
       folder.add({
-        Volume: 0.2
-      }, 'Volume', 0, 0.8).onChange(function(val) {
+        Volume: 0.07
+      }, 'Volume', 0, 0.4).onChange(function(val) {
         return _this.pitcher.setVolume(val);
       });
       console.log(this.two);
       console.log(this.circle);
       console.log(this.gui);
+      this.starter = document.getElementById('starter');
+      this.starter.addEventListener("click", function() {
+        return _this.start();
+      });
+      this.starter.addEventListener("touchstart", function() {
+        return _this.start();
+      });
     }
 
     Motion.prototype.output = function(msg) {
@@ -74,6 +81,10 @@
     };
 
     Motion.prototype.start = function() {
+      if (this.starter) {
+        this.starter.parentNode.removeChild(this.starter);
+        this.starter = void 0;
+      }
       this.orienter.start();
       this.pitcher.start();
       this.two.bind('update', this.update);

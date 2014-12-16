@@ -50,7 +50,7 @@ class @Motion
     item.listen()
 
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
-    folder.add({Volume: 0.2}, 'Volume', 0, 0.8).onChange (val) => @pitcher.setVolume(val)
+    folder.add({Volume: 0.07}, 'Volume', 0, 0.4).onChange (val) => @pitcher.setVolume(val)
 
     #
     # For development reference console.log some stuff
@@ -60,6 +60,10 @@ class @Motion
     console.log @circle
     console.log @gui
 
+    # iOS safari requires sound to be started in a touchEvent callback situation
+    @starter = document.getElementById('starter')
+    @starter.addEventListener "click", => @start()
+    @starter.addEventListener "touchstart", => @start()
 
   output: (msg) ->
 
@@ -71,6 +75,10 @@ class @Motion
       @outputel.innerHTML = @msgs.join('\n')
 
   start: ->
+    if @starter
+        @starter.parentNode.removeChild(@starter)
+        @starter = undefined
+
     @orienter.start()
     @pitcher.start()
 

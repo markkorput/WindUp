@@ -6,17 +6,17 @@ class @Pitcher
 
     @options = opts || {}
     default_url = 'audio/horror-drone.wav'
-    @volume = 0.2
-    @freq = 700
+    @volume = 0.07
+    @freq = 700 # Hz
 
     #
     # audio context
     #
 
-    if typeof AudioContent != "undefined"
-      @context = new AudioContext()
-    else if typeof webkitAudioContext != "undefined"
+    if typeof webkitAudioContext != "undefined"
       @context = new webkitAudioContext()
+    else if typeof AudioContent != "undefined"
+      @context = new AudioContext() 
     else
       console.log "AudioContext not supported"
       return
@@ -39,7 +39,7 @@ class @Pitcher
   apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
     # @sound.volume(0.1 + value * 0.9)
     @freq = 300 + 800 * value
-    @oscillator.frequency.value = @freq
+    @oscillator.frequency.value = @freq if @oscillator
 
   start: ->
     #
@@ -47,7 +47,7 @@ class @Pitcher
     #
     @oscillator = @context.createOscillator()
     @oscillator.type = 'square'
-    @oscillator.frequency.value = @freq # Hz
+    @oscillator.frequency.value = @freq 
     @oscillator.connect @gain
     @oscillator.start(@context.currentTime)
 

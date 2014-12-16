@@ -5,12 +5,12 @@
       var default_url;
       this.options = opts || {};
       default_url = 'audio/horror-drone.wav';
-      this.volume = 0.2;
+      this.volume = 0.07;
       this.freq = 700;
-      if (typeof AudioContent !== "undefined") {
-        this.context = new AudioContext();
-      } else if (typeof webkitAudioContext !== "undefined") {
+      if (typeof webkitAudioContext !== "undefined") {
         this.context = new webkitAudioContext();
+      } else if (typeof AudioContent !== "undefined") {
+        this.context = new AudioContext();
       } else {
         console.log("AudioContext not supported");
         return;
@@ -24,7 +24,9 @@
 
     Pitcher.prototype.apply = function(value) {
       this.freq = 300 + 800 * value;
-      return this.oscillator.frequency.value = this.freq;
+      if (this.oscillator) {
+        return this.oscillator.frequency.value = this.freq;
+      }
     };
 
     Pitcher.prototype.start = function() {
