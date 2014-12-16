@@ -30,18 +30,22 @@
         <title>Hello World</title>
     </head>
     <body>
-        <div class="app">
+        <!-- <div class="app">
             <h1>PhoneGap</h1>
             <div id="deviceready" class="blink">
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received" id="output">Loading...</p>
             </div>
-        </div>
+        </div> -->
         <!-- <script type="text/javascript" src="cordova.js"></script> -->
         <!-- <script type="text/javascript" src="js/gyroscoper.js"></script> -->
         <!-- <script type="text/javascript" src="js/accelerometer.js"></script> -->
         <!-- <script type="text/javascript" src="js/index.js"></script> -->
+        <script type="text/javascript" src="js/two.js"></script>
         <script type="text/javascript" src="js/motion.js"></script>
+
+        <div id="motion-anim"> </div>
+        <pre id="output"> &nbsp; </pre>
         <script type="text/javascript">
             window.onload = function() {
                 var a = new Motion();

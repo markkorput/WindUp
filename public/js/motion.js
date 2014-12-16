@@ -7,11 +7,30 @@
       this.update = __bind(this.update, this);
       this.onMotion = __bind(this.onMotion, this);
       this.options = opts;
-      this.el = document.getElementById('output');
+      this.outputel = document.getElementById('output');
+      this.twoEl = document.getElementById('motion-anim');
+      console.log(this.twoEl);
+      this.two = new Two({
+        fullscreen: true
+      }).appendTo(this.twoEl);
+      console.log(this.two);
+      this.circle = this.two.makeCircle(this.two.width * 0.5, this.two.height * 0.5, 50);
+      console.log(this.circle);
+      this.circle.fill = '#FF8000';
+      this.circle.stroke = 'orangered';
+      this.circle.linewidth = 5;
+      this.two.update();
     }
 
     Motion.prototype.output = function(msg) {
-      return this.el.innerHTML = msg;
+      this.msgs || (this.msgs = []);
+      this.msgs.unshift(msg);
+      if (this.msgs.length > 10) {
+        this.msgs.pop();
+      }
+      if (this.outputel) {
+        return this.outputel.innerHTML = this.msgs.join('\n');
+      }
     };
 
     Motion.prototype.start = function() {
@@ -21,14 +40,18 @@
         return;
       }
       window.ondevicemotion = this.onMotion;
-      return setInterval(this.update, 100);
+      this.two.bind('update', this.update);
+      return this.two.play();
     };
 
     Motion.prototype.onMotion = function(event) {
+      if (!this.lastEvent) {
+        console.log(event);
+      }
       return this.lastEvent = event;
     };
 
-    Motion.prototype.update = function() {
+    Motion.prototype.update = function(frameCount) {
       if (!this.lastEvent) {
         this.output('No motion data');
         return;
