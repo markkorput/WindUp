@@ -45,8 +45,10 @@ var app = {
         receivedElement.setAttribute('style', 'display:block;');
 
         console.log('Received Event: ' + id);
-        document.getElementById('output').innerHTML += '<br/>Starting Gyroscoper...';
-        var g = new Gyroscoper();
-        g.start();
+
+        //var g = new Gyroscoper();
+        //g.start();
+        var a = new Accelerometer();
+        a.start(); 
     }
 };

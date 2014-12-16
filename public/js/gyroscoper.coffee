@@ -29,6 +29,3 @@ class @Gyroscoper
     return 'Heading: '+@lastHeading.magneticHeading if @lastHeading
     return 'Compass Error (' + error.code + '): ' + error
     return 'No data yet'
-
-
-

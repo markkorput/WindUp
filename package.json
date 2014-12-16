@@ -1,0 +1,23 @@
+{
+	"name": "WindUp",
+	"description": "All wound up",
+	"version": "0.0.1",
+	"author": {
+		"name": "Mark van de Korput",
+		"email": "markkorput@localprojects.com"
+	},
+	"dependencies": {
+		"socket.io": "0.9.x",
+		"node-http-server": "2.0.0"
+	},
+	"keywords": [
+		"socket",
+		"accelerometer",
+		"gyroscope",
+		"mobile"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/markkorput/TODO.git"
+	}
+}
