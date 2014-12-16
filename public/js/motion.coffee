@@ -9,10 +9,17 @@ class @Motion
     console.log @two
     @circle = @two.makeCircle(@two.width*0.5, @two.height*0.5, 50)
     console.log @circle
+    @circle = @two.makeCircle(@two.width*0.5, @two.height*0.5, 50)
     @circle.fill = '#FF8000'
     @circle.stroke = 'orangered'
     @circle.linewidth = 5;
+
     @two.update();
+
+    @c = @two.makeCircle(@two.width*0.5, @two.height*0.5+30, 20)
+    @c.fill = '#0080FF'
+    @c.stroke = 'blue'
+    @c.linewidth = 5;
 
 
   output: (msg) ->
@@ -30,9 +37,14 @@ class @Motion
 
     if !window.DeviceMotionEvent
       @output "Motion events not supported on this device..."
-      return
+    else
+      window.ondevicemotion = @onMotion
 
-    window.ondevicemotion = @onMotion
+    if !window.DeviceOrientationEvent
+      @output "Orientation events not supported"
+    else
+      window.addEventListener('deviceorientation', @onOrientation)
+
     # setInterval @update, 100
     @two.bind 'update', @update
     @two.play()
@@ -45,10 +57,15 @@ class @Motion
 
     @lastEvent = event
 
-  update: (frameCount) =>
-    if !@lastEvent
-      @output 'No motion data'
-      return
+  onOrientation: (event) =>
+    if !@lastOrientation
+      console.log event
 
-    # console.log @lastEvent
-    @output 'Motion: ' + @lastEvent.accelerationIncludingGravity.x + ',' + @lastEvent.accelerationIncludingGravity.y
+    @lastOrientation = event
+
+  update: (frameCount) =>
+    #if @lastEvent
+    #  @output 'Motion: ' + @lastEvent.accelerationIncludingGravity.x + ',' + @lastEvent.accelerationIncludingGravity.y
+
+    if @lastOrientation
+      @output 'Rot: ' + [@lastOrientation.alpha, @lastOrientation.beta, @lastOrientation.gamma].join(', ')
