@@ -50,6 +50,7 @@ class @Motion
     item.listen()
 
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
+    folder.add({Volume: 0.2}, 'Volume', 0, 0.8).onChange (val) => @pitcher.setVolume(val)
 
     #
     # For development reference console.log some stuff

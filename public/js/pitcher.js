@@ -2,38 +2,55 @@
 (function() {
   this.Pitcher = (function() {
     function Pitcher(opts) {
+      var default_url;
       this.options = opts || {};
-      this.sound = new Howl({
-        urls: ['audio/horror-drone.wav'],
-        loop: true,
-        volume: 0.5,
-        sprite: {
-          piece1: [3000, 1000]
-        }
-      });
-      this.isPlaying = false;
+      default_url = 'audio/horror-drone.wav';
+      this.volume = 0.2;
+      this.freq = 700;
+      if (typeof AudioContent !== "undefined") {
+        this.context = new AudioContext();
+      } else if (typeof webkitAudioContext !== "undefined") {
+        this.context = new webkitAudioContext();
+      } else {
+        console.log("AudioContext not supported");
+        return;
+      }
+      this.gain = this.context.createGain();
+      this.gain.gain.value = this.volume;
+      this.gain.connect(this.context.destination);
+      console.log(this.context);
+      console.log(this.gain);
     }
 
+    Pitcher.prototype.apply = function(value) {
+      this.freq = 300 + 800 * value;
+      return this.oscillator.frequency.value = this.freq;
+    };
+
     Pitcher.prototype.start = function() {
-      this.sound.play('piece1');
-      return this.isPlaying = true;
+      this.oscillator = this.context.createOscillator();
+      this.oscillator.type = 'square';
+      this.oscillator.frequency.value = this.freq;
+      this.oscillator.connect(this.gain);
+      return this.oscillator.start(this.context.currentTime);
     };
 
     Pitcher.prototype.stop = function() {
-      this.sound.stop();
-      return this.isPlaying = false;
+      this.oscillator.stop(this.context.currentTime);
+      return this.oscillator = void 0;
     };
 
     Pitcher.prototype.toggle = function() {
-      if (this.isPlaying === true) {
+      if (this.oscillator) {
         return this.stop();
       } else {
         return this.start();
       }
     };
 
-    Pitcher.prototype.apply = function(value) {
-      return this.sound.volume(0.1 + value * 0.9);
+    Pitcher.prototype.setVolume = function(vol) {
+      this.volume = vol;
+      return this.gain.gain.value = vol;
     };
 
     return Pitcher;

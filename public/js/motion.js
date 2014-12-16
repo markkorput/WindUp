@@ -52,6 +52,11 @@
           return data.rotation = 0;
         }
       }, 'ResetRot');
+      folder.add({
+        Volume: 0.2
+      }, 'Volume', 0, 0.8).onChange(function(val) {
+        return _this.pitcher.setVolume(val);
+      });
       console.log(this.two);
       console.log(this.circle);
       console.log(this.gui);

@@ -1,29 +1,66 @@
 class @Pitcher
   constructor: (opts) ->
+    #
+    # config
+    #
+
     @options = opts || {}
+    default_url = 'audio/horror-drone.wav'
+    @volume = 0.2
+    @freq = 700
 
-    @sound = new Howl
-      urls: ['audio/horror-drone.wav']
-      loop: true
-      volume: 0.5
-      sprite:
-        piece1: [3000, 1000]
+    #
+    # audio context
+    #
 
-    @isPlaying = false
+    if typeof AudioContent != "undefined"
+      @context = new AudioContext()
+    else if typeof webkitAudioContext != "undefined"
+      @context = new webkitAudioContext()
+    else
+      console.log "AudioContext not supported"
+      return
+
+    #
+    # gain node (to controle gain/volume)
+    #
+
+    @gain = @context.createGain()
+    @gain.gain.value = @volume
+    @gain.connect @context.destination
+
+    #
+    # debug
+    #
+
+    console.log @context
+    console.log @gain
+
+  apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
+    # @sound.volume(0.1 + value * 0.9)
+    @freq = 300 + 800 * value
+    @oscillator.frequency.value = @freq
 
   start: ->
-    @sound.play('piece1');
-    @isPlaying = true
+    #
+    # create and start 
+    #
+    @oscillator = @context.createOscillator()
+    @oscillator.type = 'square'
+    @oscillator.frequency.value = @freq # Hz
+    @oscillator.connect @gain
+    @oscillator.start(@context.currentTime)
 
   stop: ->
-    @sound.stop()
-    @isPlaying = false
+    @oscillator.stop(@context.currentTime)
+    @oscillator = undefined
 
   toggle: ->
-    if @isPlaying == true
+    if @oscillator
       @stop()
     else
       @start()
 
-  apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
-    @sound.volume(0.1 + value * 0.9)
+  setVolume: (vol) ->
+    @volume = vol
+    @gain.gain.value = vol
