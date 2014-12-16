@@ -7,6 +7,8 @@
       this.onOrientation = __bind(this.onOrientation, this);
       this.options = opts;
       this.events = [];
+      this.rotationIndex = 0;
+      this.cumulative = 0;
     }
 
     Orienter.prototype.start = function() {
@@ -18,20 +20,31 @@
     };
 
     Orienter.prototype.onOrientation = function(event) {
-      var _results;
+      var delta, prev;
       if (!this.last()) {
         console.log(event);
       }
-      this.events.push(event);
-      _results = [];
+      this.events.unshift(event);
       while (this.events.length > 3) {
-        _results.push(this.events.shift());
+        this.events.pop();
       }
-      return _results;
+      if (prev = this.previous()) {
+        delta = event.alpha - prev.alpha;
+        if (delta > 300) {
+          this.rotationIndex -= 1;
+        } else if (delta < -300) {
+          this.rotationIndex += 1;
+        }
+      }
+      return this.cumulative = this.rotationIndex * 360 + event.alpha;
+    };
+
+    Orienter.prototype.previous = function() {
+      return this.events[1];
     };
 
     Orienter.prototype.last = function() {
-      return this.events[this.events.length - 1];
+      return this.events[0];
     };
 
     return Orienter;

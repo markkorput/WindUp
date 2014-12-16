@@ -6,28 +6,30 @@
     function Motion(opts) {
       this.update = __bind(this.update, this);
       this.onMotion = __bind(this.onMotion, this);
-      this.options = opts;
+      this.options = opts || {};
       this.outputel = document.getElementById('output');
+      if (this.outputel && this.options.log === true) {
+        this.outputel.setAttribute('style', 'display:block;');
+      }
+      this.radius = 50;
       this.twoEl = document.getElementById('motion-anim');
-      console.log(this.twoEl);
       this.two = new Two({
         fullscreen: true
       }).appendTo(this.twoEl);
-      console.log(this.two);
-      this.circle = this.two.makeCircle(this.two.width * 0.5, this.two.height * 0.5, 50);
-      console.log(this.circle);
-      this.circle = this.two.makeCircle(this.two.width * 0.5, this.two.height * 0.5, 50);
+      this.circle = this.two.makeCircle(0, 0, this.radius);
       this.circle.fill = '#FF8000';
       this.circle.stroke = 'orangered';
       this.circle.linewidth = 5;
-      this.two.update();
-      this.c = this.two.makeCircle(0, -80, 20);
+      this.c = this.two.makeCircle(0, -this.radius - 30, 20);
       this.c.fill = '#0080FF';
       this.c.stroke = 'blue';
       this.c.linewidth = 3;
-      this.group = this.two.makeGroup(this.c);
-      this.group.translation.set(this.two.width / 2, this.two.height / 2);
+      this.rotator = this.two.makeGroup(this.c);
+      this.scaler = this.two.makeGroup(this.circle, this.rotator);
+      this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.orienter = new Orienter();
+      console.log(this.two);
+      console.log(this.circle);
     }
 
     Motion.prototype.output = function(msg) {
@@ -36,7 +38,7 @@
       if (this.msgs.length > 10) {
         this.msgs.pop();
       }
-      if (this.outputel) {
+      if (this.outputel && this.options.log === true) {
         return this.outputel.innerHTML = this.msgs.join('\n');
       }
     };
@@ -59,9 +61,10 @@
       var event;
       event = this.orienter.last();
       if (event) {
-        this.output('Rot: ' + [event.alpha, event.beta, event.gamma].join(', '));
+        this.rotator.rotation = event.alpha / 180 * Math.PI;
+        this.output('Cumulative: ' + this.orienter.cumulative + ' (' + this.orienter.rotationIndex + ')');
+        return this.scaler.scale = this.orienter.cumulative / 180;
       }
-      return this.group.rotation = event.alpha / 180 * Math.PI;
     };
 
     return Motion;

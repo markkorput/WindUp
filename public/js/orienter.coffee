@@ -2,6 +2,9 @@ class @Orienter
   constructor: (opts) ->
     @options = opts
     @events = []
+    @rotationIndex = 0
+    @cumulative = 0
+
 
   start: ->
     if !window.DeviceOrientationEvent
@@ -13,12 +16,26 @@ class @Orienter
     if !@last()
       console.log event # log the first event for debugging
 
-    # save last X events; push latest event into the end of our array
-    @events.push event
+    # save last X events; shift latest event into the front of our array
+    @events.unshift event
 
-    # don't let the array get too long; remove the oldest event
-    @events.shift() while @events.length > 3
+    # don't let the array get too long; remove (pop) the oldest events from the tail of our array
+    @events.pop() while @events.length > 3
+
+    if prev = @previous()
+      # compair current rotation against last recorded rotation;
+      # if difference is too big (> 300) assume we've passed the zero-degree-angle
+      delta = event.alpha - prev.alpha
+      if delta > 300 # assume we've rotated counter-clockwise past the 0-degree-angle
+        @rotationIndex -= 1
+      else if delta < -300 # assume we've rotated clockwise past the 0-degree-angle
+        @rotationIndex += 1
+
+    @cumulative = @rotationIndex * 360 + event.alpha
+
+  previous: ->
+    @events[1]
 
   last: ->
-    @events[@events.length - 1]
+    @events[0]
 

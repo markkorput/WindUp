@@ -1,38 +1,42 @@
 class @Motion
   constructor: (opts) ->
-    @options = opts
+    @options = opts || {}
     @outputel = document.getElementById('output')
+    @outputel.setAttribute('style', 'display:block;') if @outputel && @options.log == true
+
+    @radius = 50
 
     @twoEl = document.getElementById('motion-anim');
-    console.log @twoEl
     @two = new Two(fullscreen: true).appendTo(@twoEl)
-    console.log @two
-    @circle = @two.makeCircle(@two.width*0.5, @two.height*0.5, 50)
-    console.log @circle
-    @circle = @two.makeCircle(@two.width*0.5, @two.height*0.5, 50)
+
+    @circle = @two.makeCircle(0,0, @radius)    
     @circle.fill = '#FF8000'
     @circle.stroke = 'orangered'
     @circle.linewidth = 5;
 
-    @two.update();
-
-
-    @c = @two.makeCircle(0, -80, 20)
+    @c = @two.makeCircle(0, -@radius - 30, 20)
     @c.fill = '#0080FF'
     @c.stroke = 'blue'
     @c.linewidth = 3;
 
-    @group = @two.makeGroup(@c)
-    @group.translation.set(@two.width/2, @two.height/2)
+    @rotator = @two.makeGroup(@c)
+    # @rotator.translation.set(@two.width/2, @two.height/2)
+
+    @scaler = @two.makeGroup(@circle, @rotator)
+    @scaler.translation.set(@two.width/2, @two.height/2)
 
     @orienter = new Orienter()
+
+    console.log @two
+    console.log @circle
+
 
   output: (msg) ->
     @msgs ||= []
     @msgs.unshift(msg)
     @msgs.pop() if @msgs.length > 10
 
-    if @outputel
+    if @outputel && @options.log == true
       @outputel.innerHTML = @msgs.join('\n')
     # else
     #  console.log msg
@@ -64,7 +68,11 @@ class @Motion
     #  @output 'Motion: ' + @lastEvent.accelerationIncludingGravity.x + ',' + @lastEvent.accelerationIncludingGravity.y
 
     event = @orienter.last()
-    if event 
-      @output 'Rot: ' + [event.alpha, event.beta, event.gamma].join(', ')
 
-    @group.rotation = event.alpha / 180 * Math.PI
+    if event 
+        # @output 'Rot: ' + [event.alpha, event.beta, event.gamma].join(', ')
+        @rotator.rotation = event.alpha / 180 * Math.PI
+        @output 'Cumulative: '+@orienter.cumulative + ' ('+@orienter.rotationIndex+')'
+        @scaler.scale = @orienter.cumulative / 180
+
+
