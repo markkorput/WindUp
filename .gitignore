@@ -1,0 +1,9 @@
+# OS X
+.DS_Store
+
+# editor
+*.sw?
+
+# Node
+/node_modules/
+npm-debug.log
