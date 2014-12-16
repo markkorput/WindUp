@@ -63,7 +63,7 @@
       if (event) {
         this.rotator.rotation = event.alpha / 180 * Math.PI;
         this.output('Cumulative: ' + this.orienter.cumulative + ' (' + this.orienter.rotationIndex + ')');
-        return this.scaler.scale = this.orienter.cumulative / 180;
+        return this.scaler.scale = Math.abs(this.orienter.cumulative / 270);
       }
     };
 

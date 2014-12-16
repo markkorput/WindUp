@@ -30,7 +30,6 @@ class @Motion
     console.log @two
     console.log @circle
 
-
   output: (msg) ->
     @msgs ||= []
     @msgs.unshift(msg)
@@ -73,6 +72,6 @@ class @Motion
         # @output 'Rot: ' + [event.alpha, event.beta, event.gamma].join(', ')
         @rotator.rotation = event.alpha / 180 * Math.PI
         @output 'Cumulative: '+@orienter.cumulative + ' ('+@orienter.rotationIndex+')'
-        @scaler.scale = @orienter.cumulative / 180
+        @scaler.scale = Math.abs @orienter.cumulative / 270
 
 
