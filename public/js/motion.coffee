@@ -26,6 +26,8 @@ class @Motion
     @scaler.translation.set(@two.width/2, @two.height/2)
 
     @orienter = new Orienter()
+    @pitcher = new Pitcher()
+
 
     console.log @two
     console.log @circle
@@ -42,6 +44,7 @@ class @Motion
 
   start: ->
     @orienter.start()
+    @pitcher.start()
 
     @output "Starting motion sensor..."
 

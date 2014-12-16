@@ -7,8 +7,8 @@
 		"email": "markkorput@localprojects.com"
 	},
 	"dependencies": {
-		"socket.io": "0.9.x",
-		"node-http-server": "2.0.0"
+		"node-http-server": "2.0.0",
+		"howler": "1.1.x"
 	},
 	"keywords": [
 		"socket",

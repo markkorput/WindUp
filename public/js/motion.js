@@ -28,6 +28,7 @@
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.orienter = new Orienter();
+      this.pitcher = new Pitcher();
       console.log(this.two);
       console.log(this.circle);
     }
@@ -45,6 +46,7 @@
 
     Motion.prototype.start = function() {
       this.orienter.start();
+      this.pitcher.start();
       this.output("Starting motion sensor...");
       this.two.bind('update', this.update);
       return this.two.play();
