@@ -5,6 +5,19 @@ class @Motion
     @outputel = document.getElementById('output')
     @outputel.setAttribute('style', 'display:block;') if @outputel && @options.log == true
 
+    @decay = 0
+
+    #
+    # Modules
+    #
+
+    @orienter = new Orienter()
+    @pitcher = new Pitcher()
+
+    #
+    # Visuals
+    #
+
     @radius = 50
 
     @twoEl = document.getElementById('motion-anim');
@@ -25,9 +38,6 @@ class @Motion
 
     @scaler = @two.makeGroup(@circle, @rotator)
     @scaler.translation.set(@two.width/2, @two.height/2)
-
-    @orienter = new Orienter()
-    @pitcher = new Pitcher()
 
     #
     # GUI
@@ -86,10 +96,26 @@ class @Motion
     @two.play()
 
   update: (frameCount) =>
-    value = @gui_rotation || @orienter.cumulative
-    @output 'Rot: '+ value + ' ('+@orienter.rotationIndex+')'
+    @decay = frameCount * 0.3
 
-    @rotator.rotation = value / 180 * Math.PI
-    @scaler.scale = Math.abs value / 270
-    @pitcher.apply(Math.min(1.0, Math.abs(value) / 1080))
+    rot = @gui_rotation || @orienter.cumulative
+    @output 'Rot: '+ rot + ' ('+@orienter.rotationIndex+')'
+    @rotator.rotation = rot / 180 * Math.PI
+
+    value = Math.abs(rot)
+    if @decay > value
+        value = 0
+    else
+        value -= @decay
+    
+    @scaler.scale = value / 270
+    @pitcher.apply(Math.min(1.0, value / 1260))
+
+
+    if value < 90
+        @pitcher.setFade(1.0 - value / 90)
+    else
+        @pitcher.setFade 0.0
+
+
 

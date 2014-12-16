@@ -12,6 +12,9 @@
       if (this.outputel && this.options.log === true) {
         this.outputel.setAttribute('style', 'display:block;');
       }
+      this.decay = 0;
+      this.orienter = new Orienter();
+      this.pitcher = new Pitcher();
       this.radius = 50;
       this.twoEl = document.getElementById('motion-anim');
       this.two = new Two({
@@ -28,8 +31,6 @@
       this.rotator = this.two.makeGroup(this.c);
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
-      this.orienter = new Orienter();
-      this.pitcher = new Pitcher();
       this.gui = new dat.GUI();
       data = new function() {
         this.rotation = 0;
@@ -92,12 +93,24 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var value;
-      value = this.gui_rotation || this.orienter.cumulative;
-      this.output('Rot: ' + value + ' (' + this.orienter.rotationIndex + ')');
-      this.rotator.rotation = value / 180 * Math.PI;
-      this.scaler.scale = Math.abs(value / 270);
-      return this.pitcher.apply(Math.min(1.0, Math.abs(value) / 1080));
+      var rot, value;
+      this.decay = frameCount * 0.3;
+      rot = this.gui_rotation || this.orienter.cumulative;
+      this.output('Rot: ' + rot + ' (' + this.orienter.rotationIndex + ')');
+      this.rotator.rotation = rot / 180 * Math.PI;
+      value = Math.abs(rot);
+      if (this.decay > value) {
+        value = 0;
+      } else {
+        value -= this.decay;
+      }
+      this.scaler.scale = value / 270;
+      this.pitcher.apply(Math.min(1.0, value / 1260));
+      if (value < 90) {
+        return this.pitcher.setFade(1.0 - value / 90);
+      } else {
+        return this.pitcher.setFade(0.0);
+      }
     };
 
     return Motion;

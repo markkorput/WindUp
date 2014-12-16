@@ -8,6 +8,7 @@ class @Pitcher
     default_url = 'audio/horror-drone.wav'
     @volume = 0.07
     @freq = 700 # Hz
+    @fade = 0.0
 
     #
     # audio context
@@ -26,7 +27,7 @@ class @Pitcher
     #
 
     @gain = @context.createGain()
-    @gain.gain.value = @volume
+    @gain.gain.value = @volume * (1.0 - @fade)
     @gain.connect @context.destination
 
     #
@@ -63,4 +64,8 @@ class @Pitcher
 
   setVolume: (vol) ->
     @volume = vol
-    @gain.gain.value = vol
+    @gain.gain.value = vol * (1.0 - @fade)
+
+  setFade: (fade) ->
+    @fade = Math.max(Math.min(fade, 1.0), 0.0)
+    @gain.gain.value = @volume * (1.0 - @fade)
