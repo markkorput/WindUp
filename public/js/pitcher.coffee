@@ -18,7 +18,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_url = 'audio/harmonic-drone-small.wav'
+    @track_url = 'audio/harmonic-drone-repeat.wav'
     @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0

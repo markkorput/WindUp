@@ -23,7 +23,7 @@
       var bufferLoader,
         _this = this;
       this.options = opts || {};
-      this.track_url = 'audio/harmonic-drone-small.wav';
+      this.track_url = 'audio/harmonic-drone-repeat.wav';
       this.volume = 0.4;
       this.freq = 700;
       this.gainMultiplier = 1.0;

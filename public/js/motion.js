@@ -16,7 +16,7 @@
       this.level = this.levelBase;
       this.decaySpeed = -25 - Math.random() * 5;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
-      this.gainSineSpeed = 50 + Math.random() * 5;
+      this.gainSineSpeed = 0;
       this.effectSineSpeed = 0.03;
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
@@ -84,7 +84,6 @@
       }, 'FxSine', 0, 0.1).onChange(function(val) {
         return _this.effectSineSpeed = val;
       });
-      dat.GUI.toggleHide();
       this.starter = document.getElementById('starter');
       this.starter.addEventListener("click", function() {
         return _this.start();
@@ -141,7 +140,11 @@
       apply = 0.5 + Math.sin(this.level * this.effectSineSpeed) * 0.5;
       this.output('Apply: ' + apply);
       this.pitcher.apply(apply);
-      gain = 1.0;
+      if (this.gainSineSpeed < 10) {
+        gain = 1.0;
+      } else {
+        gain = Math.sin(thisFrameTime * this.gainSineSpeed);
+      }
       if (this.level < 90) {
         gain = Math.min(gain, this.level / 90);
       }

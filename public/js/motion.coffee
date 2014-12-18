@@ -9,7 +9,7 @@ class @Motion
     @level = @levelBase
     @decaySpeed = -25 - Math.random() * 5
     @rotSpeed = 0.9 + Math.random() * 0.2
-    @gainSineSpeed = 50 + Math.random()*5
+    @gainSineSpeed = 0 # 50 + Math.random()*5
     @effectSineSpeed = 0.03
 
     #
@@ -65,7 +65,7 @@ class @Motion
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
     folder.add({FxSine: @effectSineSpeed}, 'FxSine', 0, 0.1).onChange (val) => @effectSineSpeed = val
 
-    dat.GUI.toggleHide();
+    # dat.GUI.toggleHide();
 
     #
     # For development reference console.log some stuff
@@ -134,7 +134,10 @@ class @Motion
     @output 'Apply: ' + apply
     @pitcher.apply apply
 
-    gain = 1.0 # Math.sin(thisFrameTime*@gainSineSpeed)
+    if @gainSineSpeed < 10
+        gain = 1.0
+    else
+        gain = Math.sin(thisFrameTime*@gainSineSpeed)
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
         gain = Math.min(gain, @level / 90)
