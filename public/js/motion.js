@@ -42,15 +42,10 @@
       clr = 'rgb(' + this.baseR + ',' + this.baseG + ',' + this.baseG + ')';
       this.circle.fill = clr;
       this.circle.noStroke();
-      this.c = this.two.makeCircle(0, -this.radius * 0.9, 20);
-      this.c.fill = '#0080FF';
+      this.c = this.two.makeCircle(0, this.two.height / 2, 20);
+      this.c.fill = 'white';
       this.c.noStroke();
-      window.two = this.two;
-      this.spiral = window.makeSpiral();
-      this.spiral.stroke = 'white';
-      this.spiral.linewidth = 7;
-      this.spiral.noFill();
-      this.rotator = this.two.makeGroup(this.spiral);
+      this.rotator = this.two.makeGroup(this.c);
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.starter = document.getElementById('starter');
@@ -188,7 +183,7 @@
       }
       this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
       deltaLevel = this.level - this.levelBase;
-      this.rotator.rotation += deltaRot * 0.002 + this.level * 0.0001;
+      this.rotator.rotation = thisFrameRot;
       maxDeltaLevel = this.maxLevel - this.levelBase;
       factor = this.level / maxDeltaLevel + Math.sin(thisFrameTime * 10 + this.level * 0.0001) * 0.2;
       r = parseInt(this.baseR + factor * this.rFactor);

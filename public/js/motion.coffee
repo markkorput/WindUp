@@ -49,21 +49,21 @@ class @Motion
     # @circle.linewidth = 5;
     @circle.noStroke()
 
-    @c = @two.makeCircle(0, -@radius * 0.9, 20)
-    @c.fill = '#0080FF'
+    @c = @two.makeCircle(0, @two.height/2, 20)
+    @c.fill = 'white' # '#0080FF'
     # @c.stroke = 'blue'
     # @c.linewidth = 3;
     @c.noStroke()
 
 
-    window.two = @two
-    @spiral = window.makeSpiral()
-    @spiral.stroke = 'white'
-    @spiral.linewidth = 7
-    # @spiral.fill = clr
-    @spiral.noFill()
+    # window.two = @two
+    # @spiral = window.makeSpiral()
+    # @spiral.stroke = 'white'
+    # @spiral.linewidth = 7
+    # # @spiral.fill = clr
+    # @spiral.noFill()
 
-    @rotator = @two.makeGroup(@spiral)
+    @rotator = @two.makeGroup(@c)
     # @rotator.translation.set(@two.width/2, @two.height/2)
 
     @scaler = @two.makeGroup(@circle, @rotator) # , @rotator)
@@ -186,7 +186,7 @@ class @Motion
 
 
     # update visuals/audio; scale, rotate and pitch
-    @rotator.rotation += deltaRot * 0.002 + @level * 0.0001
+    @rotator.rotation = thisFrameRot # deltaRot * 0.002 + @level * 0.0001
     # @scaler.scale = @level / 270
 
     maxDeltaLevel = (@maxLevel - @levelBase)
