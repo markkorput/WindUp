@@ -84,9 +84,7 @@
       }, 'FxSine', 0, 0.1).onChange(function(val) {
         return _this.effectSineSpeed = val;
       });
-      console.log(this.two);
-      console.log(this.circle);
-      console.log(this.gui);
+      dat.GUI.toggleHide();
       this.starter = document.getElementById('starter');
       this.starter.addEventListener("click", function() {
         return _this.start();

@@ -65,13 +65,15 @@ class @Motion
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
     folder.add({FxSine: @effectSineSpeed}, 'FxSine', 0, 0.1).onChange (val) => @effectSineSpeed = val
 
+    dat.GUI.toggleHide();
+
     #
     # For development reference console.log some stuff
     #
 
-    console.log @two
-    console.log @circle
-    console.log @gui
+    # console.log @two
+    # console.log @circle
+    # console.log @gui
 
     # iOS safari requires sound to be started in a touchEvent callback situation
     @starter = document.getElementById('starter')
