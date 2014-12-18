@@ -20,6 +20,7 @@
       this.decaySpeed = 0;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
+      this.mode = 'steady';
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 50;
@@ -84,6 +85,11 @@
         GainSine: this.gainSineSpeed
       }, 'GainSine', 0, 300).onChange(function(val) {
         return _this.gainSineSpeed = val;
+      });
+      folder.add({
+        mode: this.mode
+      }, 'mode', ['steady', 'generator']).onChange(function(val) {
+        return _this.mode = val;
       });
       folder.add({
         Reset: function() {
@@ -152,14 +158,20 @@
       deltaLevel = this.level - this.levelBase;
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
-      apply = 1 + deltaLevel / (this.maxLevel - this.levelBase);
-      this.output('Apply: ' + apply);
-      this.pitcher.apply(apply);
       if (this.gainSineSpeed < 10) {
         gain = 1.0;
       } else {
         gain = Math.sin(thisFrameTime * this.gainSineSpeed);
       }
+      if (this.mode === 'steady') {
+        apply = 1 + deltaLevel / (this.maxLevel - this.levelBase);
+      } else {
+        if (deltaRot < 0.1) {
+          gain = 0.0;
+        }
+        apply = Math.max(2.0, Math.min(0.2, deltaRot * 0.01));
+      }
+      this.pitcher.apply(apply);
       if (this.level < 90) {
         gain = Math.min(gain, this.level / 90);
       }

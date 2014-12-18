@@ -13,6 +13,7 @@ class @Motion
     @decaySpeed = 0 # 5 - Math.random() * 10
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
+    @mode = 'steady'
 
     #
     # Modules
@@ -66,6 +67,7 @@ class @Motion
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -30, 30).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
+    folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
     folder.add({Reset: => 
         @level = @levelBase
         @pitcher.start()
@@ -73,6 +75,7 @@ class @Motion
         @decaySpeed = 0
         @rotSpeed = 0.9 + Math.random() * 0.2
     }, 'Reset')
+
 
     # dat.GUI.toggleHide();
 
@@ -145,14 +148,22 @@ class @Motion
     # update visuals/audio; scale, rotate and pitch
     @rotator.rotation = thisFrameRot / 180 * Math.PI
     @scaler.scale = @level / 270
-    apply = 1 + deltaLevel / (@maxLevel - @levelBase)
-    @output 'Apply: ' + apply
-    @pitcher.apply apply
 
     if @gainSineSpeed < 10
         gain = 1.0
     else
         gain = Math.sin(thisFrameTime*@gainSineSpeed)
+
+
+    if @mode == 'steady'
+        apply = 1 + deltaLevel / (@maxLevel - @levelBase)
+    else
+        if deltaRot < 0.1
+            gain = 0.0
+        apply = Math.max(2.0, Math.min(0.2, deltaRot * 0.01))
+
+    @pitcher.apply apply
+
 
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
@@ -160,6 +171,7 @@ class @Motion
     @pitcher.setGain(gain > 0.1 ? 1.0 : 0.0)
 
     if frameCount % 15 == 0
+        # @output deltaRot
         @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot
 
 
