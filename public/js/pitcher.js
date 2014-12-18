@@ -5,9 +5,9 @@
       var default_url;
       this.options = opts || {};
       default_url = 'audio/horror-drone.wav';
-      this.volume = 0.07;
+      this.volume = 0.01;
       this.freq = 700;
-      this.fade = 0.0;
+      this.gainMultiplier = 1.0;
       if (typeof webkitAudioContext !== "undefined") {
         this.context = new webkitAudioContext();
       } else if (typeof AudioContent !== "undefined") {
@@ -17,7 +17,7 @@
         return;
       }
       this.gain = this.context.createGain();
-      this.gain.gain.value = this.volume * (1.0 - this.fade);
+      this.gain.gain.value = this.volume * this.gainMultiplier;
       this.gain.connect(this.context.destination);
       console.log(this.context);
       console.log(this.gain);
@@ -64,10 +64,10 @@
       }
     };
 
-    Pitcher.prototype.setFade = function(fade) {
-      this.fade = Math.max(Math.min(fade, 1.0), 0.0);
+    Pitcher.prototype.setGain = function(g) {
+      this.gainMultiplier = Math.max(Math.min(g, 1.0), 0.0);
       if (this.gain) {
-        return this.gain.gain.value = this.volume * (1.0 - this.fade);
+        return this.gain.gain.value = this.volume * this.gainMultiplier;
       }
     };
 

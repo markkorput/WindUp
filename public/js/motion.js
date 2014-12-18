@@ -59,8 +59,8 @@
         }
       }, 'ResetRot');
       folder.add({
-        Volume: 0.07
-      }, 'Volume', 0, 0.3).onChange(function(val) {
+        Volume: this.pitcher.volume
+      }, 'Volume', 0, 0.5).onChange(function(val) {
         return _this.pitcher.setVolume(val);
       });
       folder.add({
@@ -93,7 +93,7 @@
     Motion.prototype.output = function(msg) {
       this.msgs || (this.msgs = []);
       this.msgs.unshift(msg);
-      if (this.msgs.length > 10) {
+      if (this.msgs.length > 5) {
         this.msgs.pop();
       }
       if (this.outputel && this.options.log === true) {
@@ -114,7 +114,7 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var decay, deltaRot, deltaTime, fade, rot, thisFrameRot, thisFrameTime;
+      var decay, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime;
       thisFrameTime = new Date().getTime() * 0.001;
       deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
       this.lastFrameTime = thisFrameTime;
@@ -134,12 +134,14 @@
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
       this.pitcher.apply(Math.min(1.0, this.level / 1260));
-      fade = Math.sin(thisFrameTime * this.gainSineSpeed);
+      gain = Math.sin(thisFrameTime * this.gainSineSpeed);
       if (this.level < 90) {
-        fade = Math.min(fade, 1.0 - this.level / 90);
+        gain = Math.min(gain, this.level / 90);
       }
-      this.pitcher.setFade(fade);
-      return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
+      this.pitcher.setGain(gain);
+      if (frameCount % 15 === 0) {
+        return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
+      }
     };
 
     return Motion;

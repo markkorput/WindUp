@@ -58,7 +58,7 @@ class @Motion
             @pitcher.stop()
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
-    folder.add({Volume: 0.07}, 'Volume', 0, 0.3).onChange (val) => @pitcher.setVolume(val)
+    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.5).onChange (val) => @pitcher.setVolume(val)
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
@@ -82,7 +82,7 @@ class @Motion
 
     @msgs ||= []
     @msgs.unshift(msg)
-    @msgs.pop() if @msgs.length > 10
+    @msgs.pop() if @msgs.length > 5
 
     if @outputel && @options.log == true
       @outputel.innerHTML = @msgs.join('\n')
@@ -129,12 +129,13 @@ class @Motion
     @scaler.scale = @level / 270
     @pitcher.apply(Math.min(1.0, @level / 1260))
 
-    fade = Math.sin(thisFrameTime*@gainSineSpeed)
+    gain = Math.sin(thisFrameTime*@gainSineSpeed)
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
-        fade = Math.min(fade, 1.0 - @level / 90)
-    @pitcher.setFade(fade)
+        gain = Math.min(gain, @level / 90)
+    @pitcher.setGain(gain)
 
-    @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot
+    if frameCount % 15 == 0
+        @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot
 
 
