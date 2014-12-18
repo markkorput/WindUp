@@ -1,3 +1,16 @@
+makeDistortionCurve = (amount) ->
+  k = typeof amount == 'number' ? amount : 50
+  n_samples = 44100
+  curve = new Float32Array(n_samples)
+  deg = Math.PI / 180
+  i = 0
+    
+  for i in [0..n_samples]
+    x = i * 2 / n_samples - 1
+    curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) )
+
+  return curve
+
 class @Pitcher
   constructor: (opts) ->
     #
@@ -5,7 +18,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_url = 'audio/jam.wav'
+    @track_url = 'audio/harmonic-drone-small.wav'
     @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0
@@ -31,13 +44,20 @@ class @Pitcher
     @gain.connect @context.destination
 
     #
-    # filter (effect)
+    # filters (effect)
     #
 
     @filter = @context.createBiquadFilter()
     @filter.connect @gain
-    @filter.type = 'lowpass'; # Low-pass filter. See BiquadFilterNode docs
-    @filter.frequency.value = 440; # Set cutoff to 440 HZ
+    @filter.type = @filter.LOWPASS # 'lowpass'; # Low-pass filter. See BiquadFilterNode docs
+    @filter.frequency.value = 5000; # Set cutoff to 440 HZ
+    @filter.Q.value = 15
+    # @filter.gain.value = 25;
+
+    @distortion = @context.createWaveShaper()
+    @distortion.curve = makeDistortionCurve(400)
+    @distortion.oversample = '4x'
+    @distortion.connect @filter
 
     #
     # BufferSource (track)
@@ -47,18 +67,28 @@ class @Pitcher
 
     bufferLoader.load()
 
-    #
-    # debug
-    #
-
-    console.log @context
-    console.log @gain
 
   apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
     # @sound.volume(0.1 + value * 0.9)
     @freq = 300 + 1600 * value
-    @oscillator.frequency.value = @freq if @oscillator
+    # @oscillator.frequency.value = @freq if @oscillator
+
+    # // Clamp the frequency between the minimum value (40 Hz) and half of the
+    # // sampling rate.
+    minValue = 40
+    maxValue = @context.sampleRate / 2;
+    # // Logarithm (base 2) to compute how many octaves fall in the range.
+    numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2
+    # // Compute a multiplier from 0 to 1 based on an exponential scale.
+    multiplier = Math.pow(2, numberOfOctaves * (value - 1.0))
+    # // Get back to the frequency value between min and max.
+    @filter.frequency.value = maxValue * multiplier
+
+
     @filter.frequency.value = @freq if @filter
+    # @distortion.curve = makeDistortionCurve(100+value * 500) if @distortion
+
+    @source.playbackRate.value = 1 + value 
 
   start: ->
     return if !@context

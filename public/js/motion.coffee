@@ -10,6 +10,7 @@ class @Motion
     @decaySpeed = -25 - Math.random() * 5
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 50 + Math.random()*5
+    @effectSineSpeed = 0.03
 
     #
     # Modules
@@ -62,6 +63,7 @@ class @Motion
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
+    folder.add({FxSine: @effectSineSpeed}, 'FxSine', 0, 0.1).onChange (val) => @effectSineSpeed = val
 
     #
     # For development reference console.log some stuff
@@ -79,13 +81,12 @@ class @Motion
     # document.addEventListener "deviceready", => @start()
 
   output: (msg) ->
+    return if !@outputel || @options.log != true
 
     @msgs ||= []
     @msgs.unshift(msg)
     @msgs.pop() if @msgs.length > 5
-
-    if @outputel && @options.log == true
-      @outputel.innerHTML = @msgs.join('\n')
+    @outputel.innerHTML = @msgs.join('\n')
 
   start: ->
     @startTime = new Date().getTime() * 0.001
@@ -127,13 +128,15 @@ class @Motion
     # update visuals/audio; scale, rotate and pitch
     @rotator.rotation = thisFrameRot / 180 * Math.PI
     @scaler.scale = @level / 270
-    @pitcher.apply(Math.min(1.0, @level / 1260))
+    apply = 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
+    @output 'Apply: ' + apply
+    @pitcher.apply apply
 
     gain = 1.0 # Math.sin(thisFrameTime*@gainSineSpeed)
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
         gain = Math.min(gain, @level / 90)
-    # @pitcher.setGain(gain > 0.1 ? 1.0 : 0.0)
+    @pitcher.setGain(gain > 0.1 ? 1.0 : 0.0)
 
     if frameCount % 15 == 0
         @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot

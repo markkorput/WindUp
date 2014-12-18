@@ -17,6 +17,7 @@
       this.decaySpeed = -25 - Math.random() * 5;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 50 + Math.random() * 5;
+      this.effectSineSpeed = 0.03;
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 50;
@@ -78,6 +79,11 @@
       }, 'GainSine', 0, 300).onChange(function(val) {
         return _this.gainSineSpeed = val;
       });
+      folder.add({
+        FxSine: this.effectSineSpeed
+      }, 'FxSine', 0, 0.1).onChange(function(val) {
+        return _this.effectSineSpeed = val;
+      });
       console.log(this.two);
       console.log(this.circle);
       console.log(this.gui);
@@ -91,14 +97,15 @@
     }
 
     Motion.prototype.output = function(msg) {
+      if (!this.outputel || this.options.log !== true) {
+        return;
+      }
       this.msgs || (this.msgs = []);
       this.msgs.unshift(msg);
       if (this.msgs.length > 5) {
         this.msgs.pop();
       }
-      if (this.outputel && this.options.log === true) {
-        return this.outputel.innerHTML = this.msgs.join('\n');
-      }
+      return this.outputel.innerHTML = this.msgs.join('\n');
     };
 
     Motion.prototype.start = function() {
@@ -114,7 +121,7 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var decay, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime;
+      var apply, decay, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime, _ref;
       thisFrameTime = new Date().getTime() * 0.001;
       deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
       this.lastFrameTime = thisFrameTime;
@@ -133,11 +140,16 @@
       this.level = Math.abs(Math.max(0.0, this.level + decay) + rot);
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
-      this.pitcher.apply(Math.min(1.0, this.level / 1260));
+      apply = 0.5 + Math.sin(this.level * this.effectSineSpeed) * 0.5;
+      this.output('Apply: ' + apply);
+      this.pitcher.apply(apply);
       gain = 1.0;
       if (this.level < 90) {
         gain = Math.min(gain, this.level / 90);
       }
+      this.pitcher.setGain((_ref = gain > 0.1) != null ? _ref : {
+        1.0: 0.0
+      });
       if (frameCount % 15 === 0) {
         return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
       }
