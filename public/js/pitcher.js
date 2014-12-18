@@ -31,6 +31,9 @@
     };
 
     Pitcher.prototype.start = function() {
+      if (!this.context) {
+        return;
+      }
       this.oscillator = this.context.createOscillator();
       this.oscillator.type = 'square';
       this.oscillator.frequency.value = this.freq;
@@ -39,6 +42,9 @@
     };
 
     Pitcher.prototype.stop = function() {
+      if (!this.oscillator) {
+        return;
+      }
       this.oscillator.stop(this.context.currentTime);
       return this.oscillator = void 0;
     };
@@ -53,12 +59,16 @@
 
     Pitcher.prototype.setVolume = function(vol) {
       this.volume = vol;
-      return this.gain.gain.value = vol * (1.0 - this.fade);
+      if (this.gain) {
+        return this.gain.gain.value = vol * (1.0 - this.fade);
+      }
     };
 
     Pitcher.prototype.setFade = function(fade) {
       this.fade = Math.max(Math.min(fade, 1.0), 0.0);
-      return this.gain.gain.value = this.volume * (1.0 - this.fade);
+      if (this.gain) {
+        return this.gain.gain.value = this.volume * (1.0 - this.fade);
+      }
     };
 
     return Pitcher;

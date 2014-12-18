@@ -43,6 +43,8 @@ class @Pitcher
     @oscillator.frequency.value = @freq if @oscillator
 
   start: ->
+    return if !@context
+
     #
     # create and start 
     #
@@ -53,6 +55,7 @@ class @Pitcher
     @oscillator.start(@context.currentTime)
 
   stop: ->
+    return if !@oscillator
     @oscillator.stop(@context.currentTime)
     @oscillator = undefined
 
@@ -64,8 +67,8 @@ class @Pitcher
 
   setVolume: (vol) ->
     @volume = vol
-    @gain.gain.value = vol * (1.0 - @fade)
+    @gain.gain.value = vol * (1.0 - @fade) if @gain
 
   setFade: (fade) ->
     @fade = Math.max(Math.min(fade, 1.0), 0.0)
-    @gain.gain.value = @volume * (1.0 - @fade)
+    @gain.gain.value = @volume * (1.0 - @fade) if @gain

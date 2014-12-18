@@ -5,7 +5,10 @@ class @Motion
     @outputel = document.getElementById('output')
     @outputel.setAttribute('style', 'display:block;') if @outputel && @options.log == true
 
-    @decay = 0
+    @levelBase = 900 + Math.random() * 100
+    @level = @levelBase
+    @decaySpeed = -25 - Math.random() * 5
+    @rotSpeed = 0.9 + Math.random() * 0.2
 
     #
     # Modules
@@ -55,12 +58,13 @@ class @Motion
     item.onChange (val) =>
       @pitcher.toggle()
 
-    item = folder.add(data, 'rotation', -1080, 1080)
+    item = folder.add(data, 'rotation', -2000, 2000)
     item.onChange (val) => @gui_rotation = val
     item.listen()
 
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
-    folder.add({Volume: 0.07}, 'Volume', 0, 0.4).onChange (val) => @pitcher.setVolume(val)
+    folder.add({Volume: 0.07}, 'Volume', 0, 0.3).onChange (val) => @pitcher.setVolume(val)
+    folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
 
     #
     # For development reference console.log some stuff
@@ -75,6 +79,8 @@ class @Motion
     @starter.addEventListener "click", => @start()
     @starter.addEventListener "touchstart", => @start()
 
+    # document.addEventListener "deviceready", => @start()
+
   output: (msg) ->
 
     @msgs ||= []
@@ -85,6 +91,8 @@ class @Motion
       @outputel.innerHTML = @msgs.join('\n')
 
   start: ->
+    @startTime = new Date().getTime() * 0.001
+
     if @starter
         @starter.parentNode.removeChild(@starter)
         @starter = undefined
@@ -96,26 +104,31 @@ class @Motion
     @two.play()
 
   update: (frameCount) =>
-    @decay = frameCount * 0.3
+    thisFrameTime = new Date().getTime() * 0.001
+    deltaTime = thisFrameTime - (@lastFrameTime || thisFrameTime)
+    @lastFrameTime = thisFrameTime # for next frame
 
-    rot = @gui_rotation || @orienter.cumulative
-    @output 'Rot: '+ rot + ' ('+@orienter.rotationIndex+')'
-    @rotator.rotation = rot / 180 * Math.PI
+    thisFrameRot = @gui_rotation || @orienter.cumulative
+    deltaRot = thisFrameRot - (@lastFrameRot || 0)
+    @lastFrameRot = thisFrameRot # for next frame
 
-    value = Math.abs(rot)
-    if @decay > value
-        value = 0
-    else
-        value -= @decay
-    
-    @scaler.scale = value / 270
-    @pitcher.apply(Math.min(1.0, value / 1260))
+    decay = @decaySpeed * deltaTime # decay since last frame
+    rot = @rotSpeed * deltaRot # rotation score since last frame
 
+    @level = Math.abs(Math.max(0.0, @level + decay) + rot)
+    # console.log decay, rot, @level
 
-    if value < 90
-        @pitcher.setFade(1.0 - value / 90)
+    # update visuals/audio; scale, rotate and pitch
+    @rotator.rotation = thisFrameRot / 180 * Math.PI
+    @scaler.scale = @level / 270
+    @pitcher.apply(Math.min(1.0, @level / 1260))
+
+    # fade-out for level 0-90 (degrees, really)
+    if @level < 90
+        @pitcher.setFade(1.0 - @level / 90)
     else
         @pitcher.setFade 0.0
 
+    @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot
 
 

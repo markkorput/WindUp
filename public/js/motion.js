@@ -12,7 +12,10 @@
       if (this.outputel && this.options.log === true) {
         this.outputel.setAttribute('style', 'display:block;');
       }
-      this.decay = 0;
+      this.levelBase = 900 + Math.random() * 100;
+      this.level = this.levelBase;
+      this.decaySpeed = -25 - Math.random() * 5;
+      this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 50;
@@ -42,7 +45,7 @@
       item.onChange(function(val) {
         return _this.pitcher.toggle();
       });
-      item = folder.add(data, 'rotation', -1080, 1080);
+      item = folder.add(data, 'rotation', -2000, 2000);
       item.onChange(function(val) {
         return _this.gui_rotation = val;
       });
@@ -55,8 +58,13 @@
       }, 'ResetRot');
       folder.add({
         Volume: 0.07
-      }, 'Volume', 0, 0.4).onChange(function(val) {
+      }, 'Volume', 0, 0.3).onChange(function(val) {
         return _this.pitcher.setVolume(val);
+      });
+      folder.add({
+        DecaySpeed: this.decaySpeed
+      }, 'DecaySpeed', -100, 100).onChange(function(val) {
+        return _this.decaySpeed = val;
       });
       console.log(this.two);
       console.log(this.circle);
@@ -82,6 +90,7 @@
     };
 
     Motion.prototype.start = function() {
+      this.startTime = new Date().getTime() * 0.001;
       if (this.starter) {
         this.starter.parentNode.removeChild(this.starter);
         this.starter = void 0;
@@ -93,24 +102,25 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var rot, value;
-      this.decay = frameCount * 0.3;
-      rot = this.gui_rotation || this.orienter.cumulative;
-      this.output('Rot: ' + rot + ' (' + this.orienter.rotationIndex + ')');
-      this.rotator.rotation = rot / 180 * Math.PI;
-      value = Math.abs(rot);
-      if (this.decay > value) {
-        value = 0;
+      var decay, deltaRot, deltaTime, rot, thisFrameRot, thisFrameTime;
+      thisFrameTime = new Date().getTime() * 0.001;
+      deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
+      this.lastFrameTime = thisFrameTime;
+      thisFrameRot = this.gui_rotation || this.orienter.cumulative;
+      deltaRot = thisFrameRot - (this.lastFrameRot || 0);
+      this.lastFrameRot = thisFrameRot;
+      decay = this.decaySpeed * deltaTime;
+      rot = this.rotSpeed * deltaRot;
+      this.level = Math.abs(Math.max(0.0, this.level + decay) + rot);
+      this.rotator.rotation = thisFrameRot / 180 * Math.PI;
+      this.scaler.scale = this.level / 270;
+      this.pitcher.apply(Math.min(1.0, this.level / 1260));
+      if (this.level < 90) {
+        this.pitcher.setFade(1.0 - this.level / 90);
       } else {
-        value -= this.decay;
+        this.pitcher.setFade(0.0);
       }
-      this.scaler.scale = value / 270;
-      this.pitcher.apply(Math.min(1.0, value / 1260));
-      if (value < 90) {
-        return this.pitcher.setFade(1.0 - value / 90);
-      } else {
-        return this.pitcher.setFade(0.0);
-      }
+      return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
     };
 
     return Motion;

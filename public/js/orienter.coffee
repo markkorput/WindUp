@@ -5,7 +5,6 @@ class @Orienter
     @rotationIndex = 0
     @cumulative = 0
 
-
   start: ->
     if !window.DeviceOrientationEvent
       @output "Orientation events not supported"
@@ -15,6 +14,7 @@ class @Orienter
   onOrientation: (event) =>
     if !@last()
       console.log event # log the first event for debugging
+      @startRotationValue = event.alpha
 
     # save last X events; shift latest event into the front of our array
     @events.unshift event
@@ -31,7 +31,7 @@ class @Orienter
       else if delta < -300 # assume we've rotated clockwise past the 0-degree-angle
         @rotationIndex += 1
 
-    @cumulative = @rotationIndex * 360 + event.alpha
+    @cumulative = @rotationIndex * 360 + event.alpha - @startRotationValue
 
   previous: ->
     @events[1]

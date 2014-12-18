@@ -23,6 +23,7 @@
       var delta, prev;
       if (!this.last()) {
         console.log(event);
+        this.startRotationValue = event.alpha;
       }
       this.events.unshift(event);
       while (this.events.length > 3) {
@@ -36,7 +37,7 @@
           this.rotationIndex += 1;
         }
       }
-      return this.cumulative = this.rotationIndex * 360 + event.alpha;
+      return this.cumulative = this.rotationIndex * 360 + event.alpha - this.startRotationValue;
     };
 
     Orienter.prototype.previous = function() {
