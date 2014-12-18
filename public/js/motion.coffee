@@ -10,7 +10,7 @@ class @Motion
     @levelBase = (@maxLevel + @minLevel) / 2 # 900 + Math.random() * 100
     @level = @levelBase
     @levelGainer = 0.01
-    @decaySpeed = 0 # 5 - Math.random() * 10
+    @decaySpeed = 10 - Math.random() * 20
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
     @mode = 'steady'
@@ -26,25 +26,44 @@ class @Motion
     # Visuals
     #
 
-    @radius = 50
+    @radius = 1000
 
     @twoEl = document.getElementById('motion-anim');
     @two = new Two(fullscreen: true).appendTo(@twoEl)
 
+    @baseR = parseInt 100 + Math.random() * 120
+    @baseG = parseInt 100 + Math.random() * 100
+    @baseB = parseInt 100 + Math.random() * 80
+
+    @rFactor = 15 + Math.random() * 60
+    @gFactor = 15 + Math.random() * 80
+    @bFactor = 15 + Math.random() * 100
+
     @circle = @two.makeCircle(0,0, @radius)    
-    @circle.fill = '#FF8000'
-    @circle.stroke = 'orangered'
-    @circle.linewidth = 5;
+    clr = 'rgb('+@baseR+','+@baseG+','+@baseG+')'
+    @circle.fill = clr # '#FF8000'
+    # @circle.stroke = 'orangered'
+    # @circle.linewidth = 5;
+    @circle.noStroke()
 
-    @c = @two.makeCircle(0, -@radius - 30, 20)
+    @c = @two.makeCircle(0, -@radius * 0.9, 20)
     @c.fill = '#0080FF'
-    @c.stroke = 'blue'
-    @c.linewidth = 3;
+    # @c.stroke = 'blue'
+    # @c.linewidth = 3;
+    @c.noStroke()
 
-    @rotator = @two.makeGroup(@c)
+
+    window.two = @two
+    @spiral = window.makeSpiral()
+    @spiral.stroke = 'white'
+    @spiral.linewidth = 7
+    # @spiral.fill = clr
+    @spiral.noFill()
+
+    @rotator = @two.makeGroup(@spiral)
     # @rotator.translation.set(@two.width/2, @two.height/2)
 
-    @scaler = @two.makeGroup(@circle, @rotator)
+    @scaler = @two.makeGroup(@circle, @rotator) # , @rotator)
     @scaler.translation.set(@two.width/2, @two.height/2)
 
     #
@@ -67,7 +86,7 @@ class @Motion
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -30, 30).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
-    folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
+    # folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
     folder.add({Reset: => 
         @level = @levelBase
         @pitcher.start()
@@ -143,11 +162,21 @@ class @Motion
     @level = Math.min(Math.abs(Math.max(@minLevel, @level + decay) + rot), @maxLevel)
     deltaLevel = @level - @levelBase
 
-    # console.log decay, rot, @level
 
     # update visuals/audio; scale, rotate and pitch
-    @rotator.rotation = thisFrameRot / 180 * Math.PI
-    @scaler.scale = @level / 270
+    @rotator.rotation += @level * 0.0001
+    # @scaler.scale = @level / 270
+
+    maxDeltaLevel = (@maxLevel - @levelBase)
+    factor = (@level / maxDeltaLevel + Math.sin(thisFrameTime * 10 + @level * 0.0001)*0.2)
+    r = parseInt @baseR + factor * @rFactor
+    g = parseInt @baseG + factor * @bFactor
+    b = parseInt @baseB + factor * @gFactor
+    clr = 'rgb('+r+','+g+','+b+')'
+    @circle.fill = clr
+
+
+
 
     if @gainSineSpeed < 10
         gain = 1.0
@@ -156,7 +185,7 @@ class @Motion
 
 
     if @mode == 'steady'
-        apply = 1 + deltaLevel / (@maxLevel - @levelBase)
+        apply = 1 + deltaLevel / maxDeltaLevel
     else
         if deltaRot < 0.1
             gain = 0.0

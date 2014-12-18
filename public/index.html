@@ -55,6 +55,25 @@
         <div id="motion-anim"> </div>
         <pre id="output"> &nbsp; </pre>
         <script type="text/javascript">
+
+            function makeSpiral(){
+                var amt = 128;
+
+              var path = window.two.makeCurve(
+                _.map(_.range(amt), function(i) {
+                  var pct = i / (amt - 1);
+                  var theta = pct * Math.PI * 16;
+                  var r = pct * Math.min(two.height*2, two.width*2);
+                  var x = r * Math.cos(theta);
+                  var y = r * Math.sin(theta);
+                  return new Two.Anchor(x, y);
+                }),
+                true
+              );
+
+              return path;
+          }
+
             window.onload = function() {
                 var a = new Motion({log: false});
                 // a.start();

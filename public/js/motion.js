@@ -5,7 +5,7 @@
   this.Motion = (function() {
     function Motion(opts) {
       this.update = __bind(this.update, this);
-      var folder,
+      var clr, folder,
         _this = this;
       this.options = opts || {};
       this.outputel = document.getElementById('output');
@@ -17,26 +17,36 @@
       this.levelBase = (this.maxLevel + this.minLevel) / 2;
       this.level = this.levelBase;
       this.levelGainer = 0.01;
-      this.decaySpeed = 0;
+      this.decaySpeed = 10 - Math.random() * 20;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
       this.mode = 'steady';
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
-      this.radius = 50;
+      this.radius = 1000;
       this.twoEl = document.getElementById('motion-anim');
       this.two = new Two({
         fullscreen: true
       }).appendTo(this.twoEl);
+      this.baseR = parseInt(100 + Math.random() * 120);
+      this.baseG = parseInt(100 + Math.random() * 100);
+      this.baseB = parseInt(100 + Math.random() * 80);
+      this.rFactor = 15 + Math.random() * 60;
+      this.gFactor = 15 + Math.random() * 80;
+      this.bFactor = 15 + Math.random() * 100;
       this.circle = this.two.makeCircle(0, 0, this.radius);
-      this.circle.fill = '#FF8000';
-      this.circle.stroke = 'orangered';
-      this.circle.linewidth = 5;
-      this.c = this.two.makeCircle(0, -this.radius - 30, 20);
+      clr = 'rgb(' + this.baseR + ',' + this.baseG + ',' + this.baseG + ')';
+      this.circle.fill = clr;
+      this.circle.noStroke();
+      this.c = this.two.makeCircle(0, -this.radius * 0.9, 20);
       this.c.fill = '#0080FF';
-      this.c.stroke = 'blue';
-      this.c.linewidth = 3;
-      this.rotator = this.two.makeGroup(this.c);
+      this.c.noStroke();
+      window.two = this.two;
+      this.spiral = window.makeSpiral();
+      this.spiral.stroke = 'white';
+      this.spiral.linewidth = 7;
+      this.spiral.noFill();
+      this.rotator = this.two.makeGroup(this.spiral);
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.gui = new dat.GUI();
@@ -87,11 +97,6 @@
         return _this.gainSineSpeed = val;
       });
       folder.add({
-        mode: this.mode
-      }, 'mode', ['steady', 'generator']).onChange(function(val) {
-        return _this.mode = val;
-      });
-      folder.add({
         Reset: function() {
           _this.level = _this.levelBase;
           _this.pitcher.start();
@@ -138,7 +143,7 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var apply, decay, deltaLevel, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime, _ref;
+      var apply, b, clr, decay, deltaLevel, deltaRot, deltaTime, factor, g, gain, maxDeltaLevel, r, rot, thisFrameRot, thisFrameTime, _ref;
       thisFrameTime = new Date().getTime() * 0.001;
       deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
       this.lastFrameTime = thisFrameTime;
@@ -156,15 +161,21 @@
       }
       this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
       deltaLevel = this.level - this.levelBase;
-      this.rotator.rotation = thisFrameRot / 180 * Math.PI;
-      this.scaler.scale = this.level / 270;
+      this.rotator.rotation += this.level * 0.0001;
+      maxDeltaLevel = this.maxLevel - this.levelBase;
+      factor = this.level / maxDeltaLevel + Math.sin(thisFrameTime * 10 + this.level * 0.0001) * 0.2;
+      r = parseInt(this.baseR + factor * this.rFactor);
+      g = parseInt(this.baseG + factor * this.bFactor);
+      b = parseInt(this.baseB + factor * this.gFactor);
+      clr = 'rgb(' + r + ',' + g + ',' + b + ')';
+      this.circle.fill = clr;
       if (this.gainSineSpeed < 10) {
         gain = 1.0;
       } else {
         gain = Math.sin(thisFrameTime * this.gainSineSpeed);
       }
       if (this.mode === 'steady') {
-        apply = 1 + deltaLevel / (this.maxLevel - this.levelBase);
+        apply = 1 + deltaLevel / maxDeltaLevel;
       } else {
         if (deltaRot < 0.1) {
           gain = 0.0;

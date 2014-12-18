@@ -138,4 +138,7 @@ h1 {
     position: absolute;
     top: 50%; left: 50%;
     font-size: large;
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
 }
