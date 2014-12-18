@@ -5,12 +5,12 @@ class @Motion
     @outputel = document.getElementById('output')
     @outputel.setAttribute('style', 'display:block;') if @outputel && @options.log == true
 
-    @levelBase = 900 + Math.random() * 100
-    @level = @levelBase
     @minLevel = 0
     @maxLevel = 1500
+    @levelBase = (@maxLevel + @minLevel) / 2 # 900 + Math.random() * 100
+    @level = @levelBase
     @levelGainer = 0.01
-    @decaySpeed = 5 - Math.random() * 10
+    @decaySpeed = 0 # 5 - Math.random() * 10
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
     @effectSineSpeed = 0.03
@@ -55,11 +55,10 @@ class @Motion
     folder = @gui.addFolder 'Params'
     folder.open()
 
-    folder.add({track: 'drone'}, 'track', ['techno', 'drone', 'silent']).onChange (val) =>
-        if val == 'silent'
+    folder.add({track: 'drone'}, 'track', {'drums': 0, 'dj': 1, 'electro': 2, 'mute': -1}).onChange (val) =>
+        if val == -1
             @pitcher.stop()
         else
-            @pitcher.stop()
             @pitcher.start(val)
 
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
@@ -130,17 +129,16 @@ class @Motion
             @rotSpeed *= -1 # reverse increase/decrease rotation-directions
 
     @level = Math.min(Math.abs(Math.max(@minLevel, @level + decay) + rot), @maxLevel)
-    deltaLevel = Math.max(0.1, Math.abs(@level - @levelBase))
+    deltaLevel = @level - @levelBase
 
     # console.log decay, rot, @level
 
     # update visuals/audio; scale, rotate and pitch
     @rotator.rotation = thisFrameRot / 180 * Math.PI
     @scaler.scale = @level / 270
-    apply = 0.5 + deltaLevel / 500 # 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
+    apply = 1 + deltaLevel / (@maxLevel - @levelBase)   # 500 # 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
     @output 'Apply: ' + apply
-    @pitcher.apply apply
-
+    @pitcher.speed apply
 
     if @gainSineSpeed < 10
         gain = 1.0

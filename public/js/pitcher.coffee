@@ -18,7 +18,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav']
+    @track_urls = ['audio/125bpm-drums.wav', 'audio/125bpm-dj.wav', 'audio/125bpm-electro.wav']
     @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0
@@ -70,48 +70,47 @@ class @Pitcher
 
   apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
     # @sound.volume(0.1 + value * 0.9)
-    @freq = 300 + 1600 * value
+    # @freq = 300 + 1600 * value
     # @oscillator.frequency.value = @freq if @oscillator
 
     # // Clamp the frequency between the minimum value (40 Hz) and half of the
     # // sampling rate.
-    minValue = 40
-    maxValue = @context.sampleRate / 2;
+    # minValue = 40
+    # maxValue = @context.sampleRate / 2;
     # // Logarithm (base 2) to compute how many octaves fall in the range.
-    numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2
+    # numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2
     # // Compute a multiplier from 0 to 1 based on an exponential scale.
-    multiplier = Math.pow(2, numberOfOctaves * (value - 1.0))
+    # multiplier = Math.pow(2, numberOfOctaves * (value - 1.0))
     # // Get back to the frequency value between min and max.
-    @filter.frequency.value = maxValue * multiplier
+    # @filter.frequency.value = maxValue * multiplier
 
-
-    @filter.frequency.value = @freq if @filter
+    # @filter.frequency.value = @freq if @filter
     # @distortion.curve = makeDistortionCurve(100+value * 500) if @distortion
 
-    if @source
-      @source.playbackRate.value = 1 + value 
+    # if @source
+    #  @source.playbackRate.value = 0.5 + value
 
-  start: (trck) ->
+  speed: (val) ->
+    @source.playbackRate.value = val if @source
+
+  start: (trckidx) ->
     return if !@context
+
+    if !@bufferList
+      @console.log 'no buffer list'
+      return
 
     #
     # create and start 
     #
 
-    # for i in [0..1]
-    #   @oscillator = @context.createOscillator()
-    #   @oscillator.type = 'square'
-    #   @oscillator.frequency.value = @freq + i*10
-    #   @oscillator.connect @gain
-    #   # @oscillator.start(@context.currentTime)
-
     @stop()
 
-    if trck == 'techno'
-      trckidx = 1
-    else
-      trckidx = 0
+    if trckidx == undefined
+      trckidx = parseInt(Math.random() * @bufferList.length)
+
     buffer = @bufferList[trckidx]
+
     @source = @context.createBufferSource()
     @source.buffer = buffer
     @source.loop = true

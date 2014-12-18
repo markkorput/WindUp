@@ -23,7 +23,7 @@
       var bufferLoader,
         _this = this;
       this.options = opts || {};
-      this.track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav'];
+      this.track_urls = ['audio/125bpm-drums.wav', 'audio/125bpm-dj.wav', 'audio/125bpm-electro.wav'];
       this.volume = 0.4;
       this.freq = 700;
       this.gainMultiplier = 1.0;
@@ -53,32 +53,26 @@
       bufferLoader.load();
     }
 
-    Pitcher.prototype.apply = function(value) {
-      var maxValue, minValue, multiplier, numberOfOctaves;
-      this.freq = 300 + 1600 * value;
-      minValue = 40;
-      maxValue = this.context.sampleRate / 2;
-      numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2;
-      multiplier = Math.pow(2, numberOfOctaves * (value - 1.0));
-      this.filter.frequency.value = maxValue * multiplier;
-      if (this.filter) {
-        this.filter.frequency.value = this.freq;
-      }
+    Pitcher.prototype.apply = function(value) {};
+
+    Pitcher.prototype.speed = function(val) {
       if (this.source) {
-        return this.source.playbackRate.value = 1 + value;
+        return this.source.playbackRate.value = val;
       }
     };
 
-    Pitcher.prototype.start = function(trck) {
-      var buffer, trckidx;
+    Pitcher.prototype.start = function(trckidx) {
+      var buffer;
       if (!this.context) {
         return;
       }
+      if (!this.bufferList) {
+        this.console.log('no buffer list');
+        return;
+      }
       this.stop();
-      if (trck === 'techno') {
-        trckidx = 1;
-      } else {
-        trckidx = 0;
+      if (trckidx === void 0) {
+        trckidx = parseInt(Math.random() * this.bufferList.length);
       }
       buffer = this.bufferList[trckidx];
       this.source = this.context.createBufferSource();
