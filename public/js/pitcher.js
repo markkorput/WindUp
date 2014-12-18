@@ -6,7 +6,7 @@
         _this = this;
       this.options = opts || {};
       this.track_urls = ['audio/125bpm-drums.wav', 'audio/125bpm-dj.wav', 'audio/125bpm-electro.wav'];
-      this.volume = 0.4;
+      this.volume = 0.6;
       this.freq = 700;
       this.gainMultiplier = 1.0;
       if (typeof webkitAudioContext !== "undefined") {

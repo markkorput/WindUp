@@ -16,11 +16,15 @@
       this.maxLevel = 1500;
       this.levelBase = (this.maxLevel + this.minLevel) / 2;
       this.level = this.levelBase;
-      this.levelGainer = 0.01;
-      this.decaySpeed = 10 - Math.random() * 20;
+      this.levelGainer = 0.5;
+      this.decaySpeed = 20 + Math.random() * 10;
+      if (Math.random() > 0.5) {
+        this.decaySpeed = this.decaySpeed * -1;
+      }
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
       this.mode = 'steady';
+      console.log('decay speed:', this.decaySpeed);
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 1000;
@@ -57,7 +61,6 @@
       this.starter.addEventListener("touchstart", function() {
         return _this.start();
       });
-      return;
       this.gui = new dat.GUI();
       folder = this.gui.addFolder('Params');
       folder.open();
@@ -154,8 +157,11 @@
       this.level = this.levelBase;
       this.pitcher.start();
       this.pitcher.setVolume(0.4);
-      this.decaySpeed = 0;
-      return this.rotSpeed = 0.9 + Math.random() * 0.2;
+      this.rotSpeed = 0.9 + Math.random() * 0.2;
+      this.decaySpeed = 30 + Math.random() * 10;
+      if (Math.random() > 0.5) {
+        return this.decaySpeed = this.decaySpeed * -1;
+      }
     };
 
     Motion.prototype.update = function(frameCount) {
@@ -175,9 +181,14 @@
           this.rotSpeed *= -1;
         }
       }
+      if (deltaRot > 20) {
+        decay = 0;
+      } else {
+        decay = decay * Math.abs(deltaRot) / 20;
+      }
       this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
       deltaLevel = this.level - this.levelBase;
-      this.rotator.rotation += this.level * 0.0001;
+      this.rotator.rotation += deltaRot * 0.002 + this.level * 0.0001;
       maxDeltaLevel = this.maxLevel - this.levelBase;
       factor = this.level / maxDeltaLevel + Math.sin(thisFrameTime * 10 + this.level * 0.0001) * 0.2;
       r = parseInt(this.baseR + factor * this.rFactor);

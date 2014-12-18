@@ -6,7 +6,7 @@ class @Pitcher
 
     @options = opts || {}
     @track_urls = ['audio/125bpm-drums.wav', 'audio/125bpm-dj.wav', 'audio/125bpm-electro.wav']
-    @volume = 0.4
+    @volume = 0.6
     @freq = 700 # Hz
     @gainMultiplier = 1.0
 

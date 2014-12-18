@@ -9,18 +9,21 @@ class @Motion
     @maxLevel = 1500
     @levelBase = (@maxLevel + @minLevel) / 2 # 900 + Math.random() * 100
     @level = @levelBase
-    @levelGainer = 0.01
-    @decaySpeed = 10 - Math.random() * 20
+    @levelGainer = 0.5
+    @decaySpeed = 20 + Math.random() * 10
+    @decaySpeed = @decaySpeed * -1 if Math.random() > 0.5
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
     @mode = 'steady'
-
+    console.log 'decay speed:', @decaySpeed
     #
     # Modules
     #
 
     @orienter = new Orienter()
     @pitcher = new Pitcher()
+    # @accel = new Accelerometer()
+
 
     #
     # Visuals
@@ -83,7 +86,7 @@ class @Motion
     # document.addEventListener "deviceready", => @start()
 
 
-    return # skip
+    # return # skip
     #
     # GUI
     #
@@ -119,6 +122,7 @@ class @Motion
     @outputel.innerHTML = @msgs.join('\n')
 
   start: ->
+
     if !@pitcher || !@pitcher.bufferList
         console.log 'not ready'
         return
@@ -136,6 +140,7 @@ class @Motion
 
     @orienter.start()
     @pitcher.start()
+    # @accel.start()
 
     @two.bind 'update', @update
     @two.play()
@@ -144,8 +149,10 @@ class @Motion
     @level = @levelBase
     @pitcher.start()
     @pitcher.setVolume 0.4
-    @decaySpeed = 0
+    # @decaySpeed = 0
     @rotSpeed = 0.9 + Math.random() * 0.2
+    @decaySpeed = 30 + Math.random() * 10
+    @decaySpeed = @decaySpeed * -1 if Math.random() > 0.5
 
   update: (frameCount) =>
     thisFrameTime = new Date().getTime() * 0.001
@@ -168,12 +175,18 @@ class @Motion
             rot = -rot
             @rotSpeed *= -1 # reverse increase/decrease rotation-directions
 
+    if deltaRot > 20
+        decay = 0
+    else
+        decay = decay * Math.abs(deltaRot) / 20
+
+    # console.log 'deltaRot: ' + deltaRot
     @level = Math.min(Math.abs(Math.max(@minLevel, @level + decay) + rot), @maxLevel)
     deltaLevel = @level - @levelBase
 
 
     # update visuals/audio; scale, rotate and pitch
-    @rotator.rotation += @level * 0.0001
+    @rotator.rotation += deltaRot * 0.002 + @level * 0.0001
     # @scaler.scale = @level / 270
 
     maxDeltaLevel = (@maxLevel - @levelBase)

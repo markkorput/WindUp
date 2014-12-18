@@ -146,10 +146,10 @@ h1 {
 #restarter{
     display: none;
     position: absolute;
-    top: -25px; left: -25px;
+    top: -30px; left: -30px;
     width: 50px; height: 50px;
     background: #dd6655;
-    opacity: 0.3;
+    opacity: 0.1;
     text-decoration: none;
     border-radius: 25px;
     }
