@@ -18,8 +18,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_urls = ['audio/techno.wav', 'audio/harmonic-drone-repeat.wav']
-
+    @track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav']
     @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0
@@ -92,7 +91,7 @@ class @Pitcher
     if @source
       @source.playbackRate.value = 1 + value 
 
-  start: (track) ->
+  start: (trck) ->
     return if !@context
 
     #
@@ -106,18 +105,18 @@ class @Pitcher
     #   @oscillator.connect @gain
     #   # @oscillator.start(@context.currentTime)
 
-    stop();
+    @stop()
 
-    if track == 'techno'
-      buffer = @bufferList[0]
+    if trck == 'techno'
+      trckidx = 1
     else
-      buffer = @bufferList[1]
-
+      trckidx = 0
+    buffer = @bufferList[trckidx]
     @source = @context.createBufferSource()
     @source.buffer = buffer
     @source.loop = true
     @source.connect @filter # @gain
-    @source.start()
+    @source.start(@context.currentTime)
 
   stop: ->
     if @oscillator
@@ -125,7 +124,7 @@ class @Pitcher
       @oscillator = undefined
 
     if @source
-      @source.stop()
+      @source.stop(@context.currentTime)
       @source.disconnect()
       @source = undefined
 

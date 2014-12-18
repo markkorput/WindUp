@@ -23,7 +23,7 @@
       var bufferLoader,
         _this = this;
       this.options = opts || {};
-      this.track_urls = ['audio/techno.wav', 'audio/harmonic-drone-repeat.wav'];
+      this.track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav'];
       this.volume = 0.4;
       this.freq = 700;
       this.gainMultiplier = 1.0;
@@ -69,22 +69,23 @@
       }
     };
 
-    Pitcher.prototype.start = function(track) {
-      var buffer;
+    Pitcher.prototype.start = function(trck) {
+      var buffer, trckidx;
       if (!this.context) {
         return;
       }
-      stop();
-      if (track === 'techno') {
-        buffer = this.bufferList[0];
+      this.stop();
+      if (trck === 'techno') {
+        trckidx = 1;
       } else {
-        buffer = this.bufferList[1];
+        trckidx = 0;
       }
+      buffer = this.bufferList[trckidx];
       this.source = this.context.createBufferSource();
       this.source.buffer = buffer;
       this.source.loop = true;
       this.source.connect(this.filter);
-      return this.source.start();
+      return this.source.start(this.context.currentTime);
     };
 
     Pitcher.prototype.stop = function() {
@@ -93,7 +94,7 @@
         this.oscillator = void 0;
       }
       if (this.source) {
-        this.source.stop();
+        this.source.stop(this.context.currentTime);
         this.source.disconnect();
         return this.source = void 0;
       }
