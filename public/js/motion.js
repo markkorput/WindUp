@@ -20,7 +20,6 @@
       this.decaySpeed = 0;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
-      this.effectSineSpeed = 0.03;
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 50;
@@ -63,18 +62,17 @@
       });
       folder.add({
         ResetRot: function() {
-          _this.gui_rotation = void 0;
-          return data.rotation = 0;
+          return _this.gui_rotation = void 0;
         }
       }, 'ResetRot');
       folder.add({
         Volume: this.pitcher.volume
-      }, 'Volume', 0, 0.7).onChange(function(val) {
+      }, 'Volume', 0, 0.8).onChange(function(val) {
         return _this.pitcher.setVolume(val);
       });
       folder.add({
         DecaySpeed: this.decaySpeed
-      }, 'DecaySpeed', -100, 100).onChange(function(val) {
+      }, 'DecaySpeed', -30, 30).onChange(function(val) {
         return _this.decaySpeed = val;
       });
       folder.add({
@@ -88,10 +86,14 @@
         return _this.gainSineSpeed = val;
       });
       folder.add({
-        FxSine: this.effectSineSpeed
-      }, 'FxSine', 0, 0.1).onChange(function(val) {
-        return _this.effectSineSpeed = val;
-      });
+        Reset: function() {
+          _this.level = _this.levelBase;
+          _this.pitcher.start();
+          _this.pitcher.setVolume(0.4);
+          _this.decaySpeed = 0;
+          return _this.rotSpeed = 0.9 + Math.random() * 0.2;
+        }
+      }, 'Reset');
       this.starter = document.getElementById('starter');
       this.starter.addEventListener("click", function() {
         return _this.start();
@@ -114,6 +116,10 @@
     };
 
     Motion.prototype.start = function() {
+      if (!this.pitcher || !this.pitcher.bufferList) {
+        console.log('not ready');
+        return;
+      }
       this.startTime = new Date().getTime() * 0.001;
       if (this.starter) {
         this.starter.parentNode.removeChild(this.starter);
@@ -148,7 +154,7 @@
       this.scaler.scale = this.level / 270;
       apply = 1 + deltaLevel / (this.maxLevel - this.levelBase);
       this.output('Apply: ' + apply);
-      this.pitcher.speed(apply);
+      this.pitcher.apply(apply);
       if (this.gainSineSpeed < 10) {
         gain = 1.0;
       } else {

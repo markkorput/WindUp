@@ -13,7 +13,6 @@ class @Motion
     @decaySpeed = 0 # 5 - Math.random() * 10
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
-    @effectSineSpeed = 0.03
 
     #
     # Modules
@@ -62,12 +61,18 @@ class @Motion
             @pitcher.start(val)
 
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
-    folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
-    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.7).onChange (val) => @pitcher.setVolume(val)
-    folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
+    folder.add({ResetRot: => @gui_rotation = undefined; }, 'ResetRot')
+    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.8).onChange (val) => @pitcher.setVolume(val)
+    folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -30, 30).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
-    folder.add({FxSine: @effectSineSpeed}, 'FxSine', 0, 0.1).onChange (val) => @effectSineSpeed = val
+    folder.add({Reset: => 
+        @level = @levelBase
+        @pitcher.start()
+        @pitcher.setVolume 0.4
+        @decaySpeed = 0
+        @rotSpeed = 0.9 + Math.random() * 0.2
+    }, 'Reset')
 
     # dat.GUI.toggleHide();
 
@@ -95,6 +100,10 @@ class @Motion
     @outputel.innerHTML = @msgs.join('\n')
 
   start: ->
+    if !@pitcher || !@pitcher.bufferList
+        console.log 'not ready'
+        return
+
     @startTime = new Date().getTime() * 0.001
 
     if @starter
@@ -136,9 +145,9 @@ class @Motion
     # update visuals/audio; scale, rotate and pitch
     @rotator.rotation = thisFrameRot / 180 * Math.PI
     @scaler.scale = @level / 270
-    apply = 1 + deltaLevel / (@maxLevel - @levelBase)   # 500 # 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
+    apply = 1 + deltaLevel / (@maxLevel - @levelBase)
     @output 'Apply: ' + apply
-    @pitcher.speed apply
+    @pitcher.apply apply
 
     if @gainSineSpeed < 10
         gain = 1.0

@@ -1,16 +1,3 @@
-makeDistortionCurve = (amount) ->
-  k = typeof amount == 'number' ? amount : 50
-  n_samples = 44100
-  curve = new Float32Array(n_samples)
-  deg = Math.PI / 180
-  i = 0
-    
-  for i in [0..n_samples]
-    x = i * 2 / n_samples - 1
-    curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) )
-
-  return curve
-
 class @Pitcher
   constructor: (opts) ->
     #
@@ -54,11 +41,6 @@ class @Pitcher
     @filter.Q.value = 15
     # @filter.gain.value = 25;
 
-    @distortion = @context.createWaveShaper()
-    @distortion.curve = makeDistortionCurve(400)
-    @distortion.oversample = '4x'
-    @distortion.connect @filter
-
     #
     # BufferSource (track)
     #
@@ -67,30 +49,7 @@ class @Pitcher
 
     bufferLoader.load()
 
-
-  apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
-    # @sound.volume(0.1 + value * 0.9)
-    # @freq = 300 + 1600 * value
-    # @oscillator.frequency.value = @freq if @oscillator
-
-    # // Clamp the frequency between the minimum value (40 Hz) and half of the
-    # // sampling rate.
-    # minValue = 40
-    # maxValue = @context.sampleRate / 2;
-    # // Logarithm (base 2) to compute how many octaves fall in the range.
-    # numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2
-    # // Compute a multiplier from 0 to 1 based on an exponential scale.
-    # multiplier = Math.pow(2, numberOfOctaves * (value - 1.0))
-    # // Get back to the frequency value between min and max.
-    # @filter.frequency.value = maxValue * multiplier
-
-    # @filter.frequency.value = @freq if @filter
-    # @distortion.curve = makeDistortionCurve(100+value * 500) if @distortion
-
-    # if @source
-    #  @source.playbackRate.value = 0.5 + value
-
-  speed: (val) ->
+  apply: (val) ->
     @source.playbackRate.value = val if @source
 
   start: (trckidx) ->
@@ -111,6 +70,10 @@ class @Pitcher
 
     buffer = @bufferList[trckidx]
 
+    if !buffer
+      console.log 'invalid buffer'
+      return
+
     @source = @context.createBufferSource()
     @source.buffer = buffer
     @source.loop = true
@@ -118,20 +81,10 @@ class @Pitcher
     @source.start(@context.currentTime)
 
   stop: ->
-    if @oscillator
-      @oscillator.stop(@context.currentTime) 
-      @oscillator = undefined
-
     if @source
       @source.stop(@context.currentTime)
       @source.disconnect()
       @source = undefined
-
-  toggle: ->
-    if @oscillator
-      @stop()
-    else
-      @start()
 
   setVolume: (vol) ->
     @volume = vol
