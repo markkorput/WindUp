@@ -115,6 +115,15 @@ class @Motion
     decay = @decaySpeed * deltaTime # decay since last frame
     rot = @rotSpeed * deltaRot # rotation score since last frame
 
+    if @level == 0
+        # make it easy for the user to get out of the zero-level;
+        # don't apply decay while at zero
+        decay = 0
+        # rotating in any direction will cause increase of level
+        if rot < 0
+            rot = -rot
+            @rotSpeed *= -1 # reverse increase/decrease rotation-directions
+
     @level = Math.abs(Math.max(0.0, @level + decay) + rot)
     # console.log decay, rot, @level
 

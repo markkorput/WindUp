@@ -111,6 +111,13 @@
       this.lastFrameRot = thisFrameRot;
       decay = this.decaySpeed * deltaTime;
       rot = this.rotSpeed * deltaRot;
+      if (this.level === 0) {
+        decay = 0;
+        if (rot < 0) {
+          rot = -rot;
+          this.rotSpeed *= -1;
+        }
+      }
       this.level = Math.abs(Math.max(0.0, this.level + decay) + rot);
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
