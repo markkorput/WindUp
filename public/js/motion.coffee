@@ -7,6 +7,9 @@ class @Motion
 
     @levelBase = 900 + Math.random() * 100
     @level = @levelBase
+    @minLevel = 0
+    @maxLevel = 1500
+    @levelGainer = 0.01
     @decaySpeed = -25 - Math.random() * 5
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
@@ -52,11 +55,18 @@ class @Motion
     folder = @gui.addFolder 'Params'
     folder.open()
 
-    folder.add({audio: true}, 'audio').onChange (val) =>
-        if val
-            @pitched.start()
+    folder.add({track: 'drone'}, 'track', ['techno', 'drone', 'silent']).onChange (val) =>
+        if val == 'silent'
+            @pitcher.stop()
         else
             @pitcher.stop()
+            @pitcher.start(val)
+
+    # folder.add({audio: true}, 'audio').onChange (val) =>
+    #     if val
+    #         @pitcher.start()
+    #     else
+    #         @pitcher.stop()
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
     folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.7).onChange (val) => @pitcher.setVolume(val)
@@ -124,7 +134,8 @@ class @Motion
             rot = -rot
             @rotSpeed *= -1 # reverse increase/decrease rotation-directions
 
-    @level = Math.abs(Math.max(0.0, @level + decay) + rot)
+    @level = Math.min(Math.abs(Math.max(@minLevel, @level + decay) + rot), @maxLevel)
+    deltaLevel = Math.abs(@level - @levelBase)
     # console.log decay, rot, @level
 
     # update visuals/audio; scale, rotate and pitch
@@ -134,10 +145,12 @@ class @Motion
     @output 'Apply: ' + apply
     @pitcher.apply apply
 
+
     if @gainSineSpeed < 10
         gain = 1.0
     else
         gain = Math.sin(thisFrameTime*@gainSineSpeed)
+
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
         gain = Math.min(gain, @level / 90)

@@ -14,6 +14,9 @@
       }
       this.levelBase = 900 + Math.random() * 100;
       this.level = this.levelBase;
+      this.minLevel = 0;
+      this.maxLevel = 1500;
+      this.levelGainer = 0.01;
       this.decaySpeed = -25 - Math.random() * 5;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
@@ -40,12 +43,13 @@
       folder = this.gui.addFolder('Params');
       folder.open();
       folder.add({
-        audio: true
-      }, 'audio').onChange(function(val) {
-        if (val) {
-          return _this.pitched.start();
-        } else {
+        track: 'drone'
+      }, 'track', ['techno', 'drone', 'silent']).onChange(function(val) {
+        if (val === 'silent') {
           return _this.pitcher.stop();
+        } else {
+          _this.pitcher.stop();
+          return _this.pitcher.start(val);
         }
       });
       folder.add({
@@ -118,7 +122,7 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var apply, decay, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime, _ref;
+      var apply, decay, deltaLevel, deltaRot, deltaTime, gain, rot, thisFrameRot, thisFrameTime, _ref;
       thisFrameTime = new Date().getTime() * 0.001;
       deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
       this.lastFrameTime = thisFrameTime;
@@ -134,7 +138,8 @@
           this.rotSpeed *= -1;
         }
       }
-      this.level = Math.abs(Math.max(0.0, this.level + decay) + rot);
+      this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
+      deltaLevel = Math.abs(this.level - this.levelBase);
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
       apply = 0.5 + Math.sin(this.level * this.effectSineSpeed) * 0.5;
