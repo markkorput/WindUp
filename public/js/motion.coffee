@@ -129,11 +129,11 @@ class @Motion
     @scaler.scale = @level / 270
     @pitcher.apply(Math.min(1.0, @level / 1260))
 
-    gain = Math.sin(thisFrameTime*@gainSineSpeed)
+    gain = 1.0 # Math.sin(thisFrameTime*@gainSineSpeed)
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
         gain = Math.min(gain, @level / 90)
-    @pitcher.setGain(gain)
+    # @pitcher.setGain(gain > 0.1 ? 1.0 : 0.0)
 
     if frameCount % 15 == 0
         @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot

@@ -2,9 +2,10 @@
 (function() {
   this.Pitcher = (function() {
     function Pitcher(opts) {
-      var default_url;
+      var bufferLoader,
+        _this = this;
       this.options = opts || {};
-      default_url = 'audio/horror-drone.wav';
+      this.track_url = 'audio/techno.wav';
       this.volume = 0.01;
       this.freq = 700;
       this.gainMultiplier = 1.0;
@@ -19,6 +20,24 @@
       this.gain = this.context.createGain();
       this.gain.gain.value = this.volume * this.gainMultiplier;
       this.gain.connect(this.context.destination);
+      this.filter = this.context.createBiquadFilter();
+      this.filter.connect(this.gain);
+      this.filter.type = 'lowpass';
+      this.filter.frequency.value = 440;
+      bufferLoader = new BufferLoader(this.context, [this.track_url], function(bufferList) {
+        var buffer, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = bufferList.length; _i < _len; _i++) {
+          buffer = bufferList[_i];
+          _this.source = _this.context.createBufferSource();
+          _this.source.buffer = buffer;
+          _this.source.loop = true;
+          _this.source.connect(_this.filter);
+          _results.push(console.log(_this.source));
+        }
+        return _results;
+      });
+      bufferLoader.load();
       console.log(this.context);
       console.log(this.gain);
     }
@@ -26,7 +45,10 @@
     Pitcher.prototype.apply = function(value) {
       this.freq = 300 + 800 * value;
       if (this.oscillator) {
-        return this.oscillator.frequency.value = this.freq;
+        this.oscillator.frequency.value = this.freq;
+      }
+      if (this.filter) {
+        return this.filter.frequency.value = this.freq;
       }
     };
 
@@ -34,11 +56,9 @@
       if (!this.context) {
         return;
       }
-      this.oscillator = this.context.createOscillator();
-      this.oscillator.type = 'square';
-      this.oscillator.frequency.value = this.freq;
-      this.oscillator.connect(this.gain);
-      return this.oscillator.start(this.context.currentTime);
+      if (this.source) {
+        return this.source.start(this.context.currentTime);
+      }
     };
 
     Pitcher.prototype.stop = function() {

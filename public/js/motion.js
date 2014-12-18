@@ -134,11 +134,10 @@
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
       this.pitcher.apply(Math.min(1.0, this.level / 1260));
-      gain = Math.sin(thisFrameTime * this.gainSineSpeed);
+      gain = 1.0;
       if (this.level < 90) {
         gain = Math.min(gain, this.level / 90);
       }
-      this.pitcher.setGain(gain);
       if (frameCount % 15 === 0) {
         return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
       }

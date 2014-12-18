@@ -5,7 +5,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    default_url = 'audio/horror-drone.wav'
+    @track_url = 'audio/techno.wav'
     @volume = 0.01
     @freq = 700 # Hz
     @gainMultiplier = 1.0
@@ -31,6 +31,29 @@ class @Pitcher
     @gain.connect @context.destination
 
     #
+    # filter (effect)
+    #
+
+    @filter = @context.createBiquadFilter()
+    @filter.connect @gain
+    @filter.type = 'lowpass'; # Low-pass filter. See BiquadFilterNode docs
+    @filter.frequency.value = 440; # Set cutoff to 440 HZ
+
+    #
+    # BufferSource (track)
+    #
+    bufferLoader = new BufferLoader @context, [@track_url], (bufferList) =>
+      for buffer in bufferList
+        @source = @context.createBufferSource()
+        @source.buffer = buffer
+        
+        @source.loop = true
+        @source.connect @filter # @gain
+        console.log @source
+
+    bufferLoader.load()
+
+    #
     # debug
     #
 
@@ -41,6 +64,7 @@ class @Pitcher
     # @sound.volume(0.1 + value * 0.9)
     @freq = 300 + 800 * value
     @oscillator.frequency.value = @freq if @oscillator
+    @filter.frequency.value = @freq if @filter
 
   start: ->
     return if !@context
@@ -48,11 +72,19 @@ class @Pitcher
     #
     # create and start 
     #
-    @oscillator = @context.createOscillator()
-    @oscillator.type = 'square'
-    @oscillator.frequency.value = @freq 
-    @oscillator.connect @gain
-    @oscillator.start(@context.currentTime)
+    # for i in [0..1]
+    #   @oscillator = @context.createOscillator()
+    #   @oscillator.type = 'square'
+    #   @oscillator.frequency.value = @freq + i*10
+    #   @oscillator.connect @gain
+    #   # @oscillator.start(@context.currentTime)
+
+    
+    # myAudio = document.createElement('audio')
+    # myAudio.setAttribute('src', @track_url)
+    # myAudio.playbackRate = 3.0;
+    # myAudio.play()
+    @source.start(@context.currentTime) if @source
 
   stop: ->
     return if !@oscillator
