@@ -18,7 +18,7 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_url = 'audio/harmonic-drone-repeat.wav'
+    @track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav']
     @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0
@@ -62,7 +62,7 @@ class @Pitcher
     #
     # BufferSource (track)
     #
-    bufferLoader = new BufferLoader @context, [@track_url], (bufferList) =>
+    bufferLoader = new BufferLoader @context, @track_urls, (bufferList) =>
       @bufferList = bufferList
 
     bufferLoader.load()
@@ -88,9 +88,10 @@ class @Pitcher
     @filter.frequency.value = @freq if @filter
     # @distortion.curve = makeDistortionCurve(100+value * 500) if @distortion
 
-    @source.playbackRate.value = 1 + value 
+    if @source
+      @source.playbackRate.value = 1 + value 
 
-  start: ->
+  start: (trck) ->
     return if !@context
 
     #
@@ -104,16 +105,19 @@ class @Pitcher
     #   @oscillator.connect @gain
     #   # @oscillator.start(@context.currentTime)
 
-    for buffer in @bufferList
-      @source = @context.createBufferSource()
-      @source.buffer = buffer
-      
-      @source.loop = true
-      @source.connect @filter # @gain
-      console.log @source
-      @source.start(@context.currentTime) if @source
+    @stop()
 
-    
+    if trck == 'techno'
+      trckidx = 1
+    else
+      trckidx = 0
+    buffer = @bufferList[trckidx]
+    @source = @context.createBufferSource()
+    @source.buffer = buffer
+    @source.loop = true
+    @source.connect @filter # @gain
+    console.log @source
+    @source.start(@context.currentTime)
 
   stop: ->
     if @oscillator
@@ -122,6 +126,8 @@ class @Pitcher
 
     if @source
       @source.stop(@context.currentTime)
+      @source.disconnect()
+      @source = undefined
 
   toggle: ->
     if @oscillator

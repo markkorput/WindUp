@@ -23,7 +23,7 @@
       var bufferLoader,
         _this = this;
       this.options = opts || {};
-      this.track_url = 'audio/harmonic-drone-repeat.wav';
+      this.track_urls = ['audio/harmonic-drone-repeat.wav', 'audio/techno.wav'];
       this.volume = 0.4;
       this.freq = 700;
       this.gainMultiplier = 1.0;
@@ -47,7 +47,7 @@
       this.distortion.curve = makeDistortionCurve(400);
       this.distortion.oversample = '4x';
       this.distortion.connect(this.filter);
-      bufferLoader = new BufferLoader(this.context, [this.track_url], function(bufferList) {
+      bufferLoader = new BufferLoader(this.context, this.track_urls, function(bufferList) {
         return _this.bufferList = bufferList;
       });
       bufferLoader.load();
@@ -64,30 +64,29 @@
       if (this.filter) {
         this.filter.frequency.value = this.freq;
       }
-      return this.source.playbackRate.value = 1 + value;
+      if (this.source) {
+        return this.source.playbackRate.value = 1 + value;
+      }
     };
 
-    Pitcher.prototype.start = function() {
-      var buffer, _i, _len, _ref, _results;
+    Pitcher.prototype.start = function(trck) {
+      var buffer, trckidx;
       if (!this.context) {
         return;
       }
-      _ref = this.bufferList;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        buffer = _ref[_i];
-        this.source = this.context.createBufferSource();
-        this.source.buffer = buffer;
-        this.source.loop = true;
-        this.source.connect(this.filter);
-        console.log(this.source);
-        if (this.source) {
-          _results.push(this.source.start(this.context.currentTime));
-        } else {
-          _results.push(void 0);
-        }
+      this.stop();
+      if (trck === 'techno') {
+        trckidx = 1;
+      } else {
+        trckidx = 0;
       }
-      return _results;
+      buffer = this.bufferList[trckidx];
+      this.source = this.context.createBufferSource();
+      this.source.buffer = buffer;
+      this.source.loop = true;
+      this.source.connect(this.filter);
+      console.log(this.source);
+      return this.source.start(this.context.currentTime);
     };
 
     Pitcher.prototype.stop = function() {
@@ -96,7 +95,9 @@
         this.oscillator = void 0;
       }
       if (this.source) {
-        return this.source.stop(this.context.currentTime);
+        this.source.stop(this.context.currentTime);
+        this.source.disconnect();
+        return this.source = void 0;
       }
     };
 

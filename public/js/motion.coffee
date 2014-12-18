@@ -52,11 +52,13 @@ class @Motion
     folder = @gui.addFolder 'Params'
     folder.open()
 
-    folder.add({audio: true}, 'audio').onChange (val) =>
-        if val
-            @pitched.start()
+    folder.add({track: 'drone'}, 'track', ['techno', 'drone', 'silent']).onChange (val) =>
+        if val == 'silent'
+            @pitcher.stop()
         else
             @pitcher.stop()
+            @pitcher.start(val)
+
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
     folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.7).onChange (val) => @pitcher.setVolume(val)

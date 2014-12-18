@@ -40,12 +40,13 @@
       folder = this.gui.addFolder('Params');
       folder.open();
       folder.add({
-        audio: true
-      }, 'audio').onChange(function(val) {
-        if (val) {
-          return _this.pitched.start();
-        } else {
+        track: 'drone'
+      }, 'track', ['techno', 'drone', 'silent']).onChange(function(val) {
+        if (val === 'silent') {
           return _this.pitcher.stop();
+        } else {
+          _this.pitcher.stop();
+          return _this.pitcher.start(val);
         }
       });
       folder.add({
