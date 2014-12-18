@@ -5,7 +5,7 @@
   this.Motion = (function() {
     function Motion(opts) {
       this.update = __bind(this.update, this);
-      var data, folder, item,
+      var folder,
         _this = this;
       this.options = opts || {};
       this.outputel = document.getElementById('output');
@@ -35,21 +35,22 @@
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
       this.gui = new dat.GUI();
-      data = new function() {
-        this.rotation = 0;
-        return this.audio = true;
-      };
       folder = this.gui.addFolder('Params');
       folder.open();
-      item = folder.add(data, 'audio');
-      item.onChange(function(val) {
-        return _this.pitcher.toggle();
+      folder.add({
+        audio: true
+      }, 'audio').onChange(function(val) {
+        if (val) {
+          return _this.pitched.start();
+        } else {
+          return _this.pitcher.stop();
+        }
       });
-      item = folder.add(data, 'rotation', -2000, 2000);
-      item.onChange(function(val) {
+      folder.add({
+        rotation: 0
+      }, 'rotation', -2000, 2000).onChange(function(val) {
         return _this.gui_rotation = val;
       });
-      item.listen();
       folder.add({
         ResetRot: function() {
           _this.gui_rotation = void 0;
@@ -65,6 +66,11 @@
         DecaySpeed: this.decaySpeed
       }, 'DecaySpeed', -100, 100).onChange(function(val) {
         return _this.decaySpeed = val;
+      });
+      folder.add({
+        RotSpeed: this.rotSpeed
+      }, 'RotSpeed', -5, 5).onChange(function(val) {
+        return _this.rotSpeed = val;
       });
       console.log(this.two);
       console.log(this.circle);
@@ -111,7 +117,7 @@
       this.lastFrameRot = thisFrameRot;
       decay = this.decaySpeed * deltaTime;
       rot = this.rotSpeed * deltaRot;
-      if (this.level === 0) {
+      if (this.level < 0.2) {
         decay = 0;
         if (rot < 0) {
           rot = -rot;

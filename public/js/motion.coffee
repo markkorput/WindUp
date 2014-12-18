@@ -47,24 +47,19 @@ class @Motion
     #
 
     @gui = new dat.GUI()
-    data = new ->
-      @rotation = 0
-      @audio = true
-
     folder = @gui.addFolder 'Params'
     folder.open()
 
-    item = folder.add(data, 'audio')
-    item.onChange (val) =>
-      @pitcher.toggle()
-
-    item = folder.add(data, 'rotation', -2000, 2000)
-    item.onChange (val) => @gui_rotation = val
-    item.listen()
-
+    folder.add({audio: true}, 'audio').onChange (val) =>
+        if val
+            @pitched.start()
+        else
+            @pitcher.stop()
+    folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
     folder.add({Volume: 0.07}, 'Volume', 0, 0.3).onChange (val) => @pitcher.setVolume(val)
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
+    folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
 
     #
     # For development reference console.log some stuff
@@ -115,7 +110,7 @@ class @Motion
     decay = @decaySpeed * deltaTime # decay since last frame
     rot = @rotSpeed * deltaRot # rotation score since last frame
 
-    if @level == 0
+    if @level < 0.2
         # make it easy for the user to get out of the zero-level;
         # don't apply decay while at zero
         decay = 0
