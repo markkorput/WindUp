@@ -16,6 +16,7 @@
       this.level = this.levelBase;
       this.decaySpeed = -25 - Math.random() * 5;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
+      this.gainSineSpeed = 50 + Math.random() * 5;
       this.orienter = new Orienter();
       this.pitcher = new Pitcher();
       this.radius = 50;
@@ -72,6 +73,11 @@
       }, 'RotSpeed', -5, 5).onChange(function(val) {
         return _this.rotSpeed = val;
       });
+      folder.add({
+        GainSine: this.gainSineSpeed
+      }, 'GainSine', 0, 300).onChange(function(val) {
+        return _this.gainSineSpeed = val;
+      });
       console.log(this.two);
       console.log(this.circle);
       console.log(this.gui);
@@ -108,7 +114,7 @@
     };
 
     Motion.prototype.update = function(frameCount) {
-      var decay, deltaRot, deltaTime, rot, thisFrameRot, thisFrameTime;
+      var decay, deltaRot, deltaTime, fade, rot, thisFrameRot, thisFrameTime;
       thisFrameTime = new Date().getTime() * 0.001;
       deltaTime = thisFrameTime - (this.lastFrameTime || thisFrameTime);
       this.lastFrameTime = thisFrameTime;
@@ -128,11 +134,11 @@
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
       this.pitcher.apply(Math.min(1.0, this.level / 1260));
+      fade = Math.sin(thisFrameTime * this.gainSineSpeed);
       if (this.level < 90) {
-        this.pitcher.setFade(1.0 - this.level / 90);
-      } else {
-        this.pitcher.setFade(0.0);
+        fade = Math.min(fade, 1.0 - this.level / 90);
       }
+      this.pitcher.setFade(fade);
       return this.output('Lvl: ' + this.level + ' / Rot: ' + thisFrameRot);
     };
 

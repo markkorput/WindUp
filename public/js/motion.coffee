@@ -9,6 +9,7 @@ class @Motion
     @level = @levelBase
     @decaySpeed = -25 - Math.random() * 5
     @rotSpeed = 0.9 + Math.random() * 0.2
+    @gainSineSpeed = 50 + Math.random()*5
 
     #
     # Modules
@@ -60,6 +61,7 @@ class @Motion
     folder.add({Volume: 0.07}, 'Volume', 0, 0.3).onChange (val) => @pitcher.setVolume(val)
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
+    folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
 
     #
     # For development reference console.log some stuff
@@ -127,11 +129,11 @@ class @Motion
     @scaler.scale = @level / 270
     @pitcher.apply(Math.min(1.0, @level / 1260))
 
+    fade = Math.sin(thisFrameTime*@gainSineSpeed)
     # fade-out for level 0-90 (degrees, really)
     if @level < 90
-        @pitcher.setFade(1.0 - @level / 90)
-    else
-        @pitcher.setFade 0.0
+        fade = Math.min(fade, 1.0 - @level / 90)
+    @pitcher.setFade(fade)
 
     @output 'Lvl: ' + @level + ' / Rot: ' + thisFrameRot
 
