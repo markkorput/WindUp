@@ -5,8 +5,8 @@
       var bufferLoader,
         _this = this;
       this.options = opts || {};
-      this.track_url = 'audio/techno.wav';
-      this.volume = 0.01;
+      this.track_url = 'audio/jam.wav';
+      this.volume = 0.4;
       this.freq = 700;
       this.gainMultiplier = 1.0;
       if (typeof webkitAudioContext !== "undefined") {
@@ -25,17 +25,7 @@
       this.filter.type = 'lowpass';
       this.filter.frequency.value = 440;
       bufferLoader = new BufferLoader(this.context, [this.track_url], function(bufferList) {
-        var buffer, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = bufferList.length; _i < _len; _i++) {
-          buffer = bufferList[_i];
-          _this.source = _this.context.createBufferSource();
-          _this.source.buffer = buffer;
-          _this.source.loop = true;
-          _this.source.connect(_this.filter);
-          _results.push(console.log(_this.source));
-        }
-        return _results;
+        return _this.bufferList = bufferList;
       });
       bufferLoader.load();
       console.log(this.context);
@@ -43,7 +33,7 @@
     }
 
     Pitcher.prototype.apply = function(value) {
-      this.freq = 300 + 800 * value;
+      this.freq = 300 + 1600 * value;
       if (this.oscillator) {
         this.oscillator.frequency.value = this.freq;
       }
@@ -53,20 +43,36 @@
     };
 
     Pitcher.prototype.start = function() {
+      var buffer, _i, _len, _ref, _results;
       if (!this.context) {
         return;
       }
-      if (this.source) {
-        return this.source.start(this.context.currentTime);
+      _ref = this.bufferList;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        buffer = _ref[_i];
+        this.source = this.context.createBufferSource();
+        this.source.buffer = buffer;
+        this.source.loop = true;
+        this.source.connect(this.filter);
+        console.log(this.source);
+        if (this.source) {
+          _results.push(this.source.start(this.context.currentTime));
+        } else {
+          _results.push(void 0);
+        }
       }
+      return _results;
     };
 
     Pitcher.prototype.stop = function() {
-      if (!this.oscillator) {
-        return;
+      if (this.oscillator) {
+        this.oscillator.stop(this.context.currentTime);
+        this.oscillator = void 0;
       }
-      this.oscillator.stop(this.context.currentTime);
-      return this.oscillator = void 0;
+      if (this.source) {
+        return this.source.stop(this.context.currentTime);
+      }
     };
 
     Pitcher.prototype.toggle = function() {

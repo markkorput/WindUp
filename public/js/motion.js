@@ -60,7 +60,7 @@
       }, 'ResetRot');
       folder.add({
         Volume: this.pitcher.volume
-      }, 'Volume', 0, 0.5).onChange(function(val) {
+      }, 'Volume', 0, 0.7).onChange(function(val) {
         return _this.pitcher.setVolume(val);
       });
       folder.add({

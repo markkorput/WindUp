@@ -58,7 +58,7 @@ class @Motion
             @pitcher.stop()
     folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
     folder.add({ResetRot: => @gui_rotation = undefined; data.rotation = 0}, 'ResetRot')
-    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.5).onChange (val) => @pitcher.setVolume(val)
+    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.7).onChange (val) => @pitcher.setVolume(val)
     folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -100, 100).onChange (val) => @decaySpeed = val
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val

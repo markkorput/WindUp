@@ -5,8 +5,8 @@ class @Pitcher
     #
 
     @options = opts || {}
-    @track_url = 'audio/techno.wav'
-    @volume = 0.01
+    @track_url = 'audio/jam.wav'
+    @volume = 0.4
     @freq = 700 # Hz
     @gainMultiplier = 1.0
 
@@ -43,13 +43,7 @@ class @Pitcher
     # BufferSource (track)
     #
     bufferLoader = new BufferLoader @context, [@track_url], (bufferList) =>
-      for buffer in bufferList
-        @source = @context.createBufferSource()
-        @source.buffer = buffer
-        
-        @source.loop = true
-        @source.connect @filter # @gain
-        console.log @source
+      @bufferList = bufferList
 
     bufferLoader.load()
 
@@ -62,7 +56,7 @@ class @Pitcher
 
   apply: (value) -> # value assumed to be normalized in the 0.0 to 1.0 range
     # @sound.volume(0.1 + value * 0.9)
-    @freq = 300 + 800 * value
+    @freq = 300 + 1600 * value
     @oscillator.frequency.value = @freq if @oscillator
     @filter.frequency.value = @freq if @filter
 
@@ -72,6 +66,7 @@ class @Pitcher
     #
     # create and start 
     #
+
     # for i in [0..1]
     #   @oscillator = @context.createOscillator()
     #   @oscillator.type = 'square'
@@ -79,17 +74,24 @@ class @Pitcher
     #   @oscillator.connect @gain
     #   # @oscillator.start(@context.currentTime)
 
+    for buffer in @bufferList
+      @source = @context.createBufferSource()
+      @source.buffer = buffer
+      
+      @source.loop = true
+      @source.connect @filter # @gain
+      console.log @source
+      @source.start(@context.currentTime) if @source
+
     
-    # myAudio = document.createElement('audio')
-    # myAudio.setAttribute('src', @track_url)
-    # myAudio.playbackRate = 3.0;
-    # myAudio.play()
-    @source.start(@context.currentTime) if @source
 
   stop: ->
-    return if !@oscillator
-    @oscillator.stop(@context.currentTime)
-    @oscillator = undefined
+    if @oscillator
+      @oscillator.stop(@context.currentTime) 
+      @oscillator = undefined
+
+    if @source
+      @source.stop(@context.currentTime)
 
   toggle: ->
     if @oscillator
