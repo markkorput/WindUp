@@ -17,7 +17,7 @@
       this.minLevel = 0;
       this.maxLevel = 1500;
       this.levelGainer = 0.01;
-      this.decaySpeed = -25 - Math.random() * 5;
+      this.decaySpeed = 5 - Math.random() * 10;
       this.rotSpeed = 0.9 + Math.random() * 0.2;
       this.gainSineSpeed = 0;
       this.effectSineSpeed = 0.03;
@@ -139,10 +139,10 @@
         }
       }
       this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
-      deltaLevel = Math.abs(this.level - this.levelBase);
+      deltaLevel = Math.max(0.1, Math.abs(this.level - this.levelBase));
       this.rotator.rotation = thisFrameRot / 180 * Math.PI;
       this.scaler.scale = this.level / 270;
-      apply = 0.5 + Math.sin(this.level * this.effectSineSpeed) * 0.5;
+      apply = 0.5 + deltaLevel / 500;
       this.output('Apply: ' + apply);
       this.pitcher.apply(apply);
       if (this.gainSineSpeed < 10) {

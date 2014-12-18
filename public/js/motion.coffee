@@ -10,7 +10,7 @@ class @Motion
     @minLevel = 0
     @maxLevel = 1500
     @levelGainer = 0.01
-    @decaySpeed = -25 - Math.random() * 5
+    @decaySpeed = 5 - Math.random() * 10
     @rotSpeed = 0.9 + Math.random() * 0.2
     @gainSineSpeed = 0 # 50 + Math.random()*5
     @effectSineSpeed = 0.03
@@ -130,13 +130,14 @@ class @Motion
             @rotSpeed *= -1 # reverse increase/decrease rotation-directions
 
     @level = Math.min(Math.abs(Math.max(@minLevel, @level + decay) + rot), @maxLevel)
-    deltaLevel = Math.abs(@level - @levelBase)
+    deltaLevel = Math.max(0.1, Math.abs(@level - @levelBase))
+
     # console.log decay, rot, @level
 
     # update visuals/audio; scale, rotate and pitch
     @rotator.rotation = thisFrameRot / 180 * Math.PI
     @scaler.scale = @level / 270
-    apply = 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
+    apply = 0.5 + deltaLevel / 500 # 0.5 + Math.sin(@level * @effectSineSpeed) * 0.5
     @output 'Apply: ' + apply
     @pitcher.apply apply
 
