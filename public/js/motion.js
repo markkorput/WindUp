@@ -49,6 +49,15 @@
       this.rotator = this.two.makeGroup(this.spiral);
       this.scaler = this.two.makeGroup(this.circle, this.rotator);
       this.scaler.translation.set(this.two.width / 2, this.two.height / 2);
+      this.starter = document.getElementById('starter');
+      this.restarter = document.getElementById('restarter');
+      this.starter.addEventListener("click", function() {
+        return _this.start();
+      });
+      this.starter.addEventListener("touchstart", function() {
+        return _this.start();
+      });
+      return;
       this.gui = new dat.GUI();
       folder = this.gui.addFolder('Params');
       folder.open();
@@ -98,20 +107,9 @@
       });
       folder.add({
         Reset: function() {
-          _this.level = _this.levelBase;
-          _this.pitcher.start();
-          _this.pitcher.setVolume(0.4);
-          _this.decaySpeed = 0;
-          return _this.rotSpeed = 0.9 + Math.random() * 0.2;
+          return _this.restart();
         }
       }, 'Reset');
-      this.starter = document.getElementById('starter');
-      this.starter.addEventListener("click", function() {
-        return _this.start();
-      });
-      this.starter.addEventListener("touchstart", function() {
-        return _this.start();
-      });
     }
 
     Motion.prototype.output = function(msg) {
@@ -127,6 +125,7 @@
     };
 
     Motion.prototype.start = function() {
+      var _this = this;
       if (!this.pitcher || !this.pitcher.bufferList) {
         console.log('not ready');
         return;
@@ -136,10 +135,27 @@
         this.starter.parentNode.removeChild(this.starter);
         this.starter = void 0;
       }
+      if (this.restarter) {
+        this.restarter.setAttribute('style', 'display:block;');
+        this.restarter.addEventListener("click", function() {
+          return _this.restart();
+        });
+        this.restarter.addEventListener("touchstart", function() {
+          return _this.restart();
+        });
+      }
       this.orienter.start();
       this.pitcher.start();
       this.two.bind('update', this.update);
       return this.two.play();
+    };
+
+    Motion.prototype.restart = function() {
+      this.level = this.levelBase;
+      this.pitcher.start();
+      this.pitcher.setVolume(0.4);
+      this.decaySpeed = 0;
+      return this.rotSpeed = 0.9 + Math.random() * 0.2;
     };
 
     Motion.prototype.update = function(frameCount) {

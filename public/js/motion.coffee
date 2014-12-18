@@ -67,6 +67,24 @@ class @Motion
     @scaler.translation.set(@two.width/2, @two.height/2)
 
     #
+    # For development reference console.log some stuff
+    #
+
+    # console.log @two
+    # console.log @circle
+    # console.log @gui
+
+    # iOS safari requires sound to be started in a touchEvent callback situation
+    @starter = document.getElementById('starter')
+    @restarter = document.getElementById('restarter')
+    @starter.addEventListener "click", => @start()
+    @starter.addEventListener "touchstart", => @start()
+
+    # document.addEventListener "deviceready", => @start()
+
+
+    return # skip
+    #
     # GUI
     #
 
@@ -87,31 +105,10 @@ class @Motion
     folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
     folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
     # folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
-    folder.add({Reset: => 
-        @level = @levelBase
-        @pitcher.start()
-        @pitcher.setVolume 0.4
-        @decaySpeed = 0
-        @rotSpeed = 0.9 + Math.random() * 0.2
-    }, 'Reset')
+    folder.add({Reset: => @restart()}, 'Reset')
 
 
     # dat.GUI.toggleHide();
-
-    #
-    # For development reference console.log some stuff
-    #
-
-    # console.log @two
-    # console.log @circle
-    # console.log @gui
-
-    # iOS safari requires sound to be started in a touchEvent callback situation
-    @starter = document.getElementById('starter')
-    @starter.addEventListener "click", => @start()
-    @starter.addEventListener "touchstart", => @start()
-
-    # document.addEventListener "deviceready", => @start()
 
   output: (msg) ->
     return if !@outputel || @options.log != true
@@ -132,11 +129,23 @@ class @Motion
         @starter.parentNode.removeChild(@starter)
         @starter = undefined
 
+    if @restarter
+        @restarter.setAttribute('style', 'display:block;');
+        @restarter.addEventListener "click", => @restart()
+        @restarter.addEventListener "touchstart", => @restart()
+
     @orienter.start()
     @pitcher.start()
 
     @two.bind 'update', @update
     @two.play()
+
+  restart: ->
+    @level = @levelBase
+    @pitcher.start()
+    @pitcher.setVolume 0.4
+    @decaySpeed = 0
+    @rotSpeed = 0.9 + Math.random() * 0.2
 
   update: (frameCount) =>
     thisFrameTime = new Date().getTime() * 0.001
