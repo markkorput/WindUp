@@ -5,7 +5,7 @@
   this.Motion = (function() {
     function Motion(opts) {
       this.update = __bind(this.update, this);
-      var clr, folder,
+      var clr,
         _this = this;
       this.options = opts || {};
       this.outputel = document.getElementById('output');
@@ -56,58 +56,6 @@
       this.starter.addEventListener("touchstart", function() {
         return _this.start();
       });
-      this.gui = new dat.GUI();
-      folder = this.gui.addFolder('Params');
-      folder.open();
-      folder.add({
-        track: 'drone'
-      }, 'track', {
-        'drums': 0,
-        'dj': 1,
-        'electro': 2,
-        'mute': -1
-      }).onChange(function(val) {
-        if (val === -1) {
-          return _this.pitcher.stop();
-        } else {
-          return _this.pitcher.start(val);
-        }
-      });
-      folder.add({
-        rotation: 0
-      }, 'rotation', -2000, 2000).onChange(function(val) {
-        return _this.gui_rotation = val;
-      });
-      folder.add({
-        ResetRot: function() {
-          return _this.gui_rotation = void 0;
-        }
-      }, 'ResetRot');
-      folder.add({
-        Volume: this.pitcher.volume
-      }, 'Volume', 0, 0.8).onChange(function(val) {
-        return _this.pitcher.setVolume(val);
-      });
-      folder.add({
-        DecaySpeed: this.decaySpeed
-      }, 'DecaySpeed', -30, 30).onChange(function(val) {
-        return _this.decaySpeed = val;
-      });
-      folder.add({
-        RotSpeed: this.rotSpeed
-      }, 'RotSpeed', -5, 5).onChange(function(val) {
-        return _this.rotSpeed = val;
-      });
-      folder.add({
-        GainSine: this.gainSineSpeed
-      }, 'GainSine', 0, 300).onChange(function(val) {
-        return _this.gainSineSpeed = val;
-      });
-      folder.add({
-        Reset: function() {
-          return _this.restart();
-        }
-      }, 'Reset');
     }
 
     Motion.prototype.output = function(msg) {

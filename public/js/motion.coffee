@@ -91,24 +91,24 @@ class @Motion
     # GUI
     #
 
-    @gui = new dat.GUI()
-    folder = @gui.addFolder 'Params'
-    folder.open()
-
-    folder.add({track: 'drone'}, 'track', {'drums': 0, 'dj': 1, 'electro': 2, 'mute': -1}).onChange (val) =>
-        if val == -1
-            @pitcher.stop()
-        else
-            @pitcher.start(val)
-
-    folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
-    folder.add({ResetRot: => @gui_rotation = undefined; }, 'ResetRot')
-    folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.8).onChange (val) => @pitcher.setVolume(val)
-    folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -30, 30).onChange (val) => @decaySpeed = val
-    folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
-    folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
-    # folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
-    folder.add({Reset: => @restart()}, 'Reset')
+    #@gui = new dat.GUI()
+    #folder = @gui.addFolder 'Params'
+    #folder.open()
+#
+    #folder.add({track: 'drone'}, 'track', {'drums': 0, 'dj': 1, 'electro': 2, 'mute': -1}).onChange (val) =>
+    #    if val == -1
+    #        @pitcher.stop()
+    #    else
+    #        @pitcher.start(val)
+#
+    #folder.add({rotation: 0}, 'rotation', -2000, 2000).onChange (val) => @gui_rotation = val
+    #folder.add({ResetRot: => @gui_rotation = undefined; }, 'ResetRot')
+    #folder.add({Volume: @pitcher.volume}, 'Volume', 0, 0.8).onChange (val) => @pitcher.setVolume(val)
+    #folder.add({DecaySpeed: @decaySpeed}, 'DecaySpeed', -30, 30).onChange (val) => @decaySpeed = val
+    #folder.add({RotSpeed: @rotSpeed}, 'RotSpeed', -5, 5).onChange (val) => @rotSpeed = val
+    #folder.add({GainSine: @gainSineSpeed}, 'GainSine', 0, 300).onChange (val) => @gainSineSpeed = val
+    ## folder.add({mode: @mode}, 'mode', ['steady', 'generator']).onChange (val) => @mode = val
+    #folder.add({Reset: => @restart()}, 'Reset')
 
 
     # dat.GUI.toggleHide();
