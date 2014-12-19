@@ -49,7 +49,7 @@ class @Motion
     # @circle.linewidth = 5;
     @circle.noStroke()
 
-    @c = @two.makeCircle(0, @two.height/2, 20)
+    @c = @two.makeCircle(0, @two.height/3, 20)
     @c.fill = 'white' # '#0080FF'
     # @c.stroke = 'blue'
     # @c.linewidth = 3;

@@ -42,7 +42,7 @@
       clr = 'rgb(' + this.baseR + ',' + this.baseG + ',' + this.baseG + ')';
       this.circle.fill = clr;
       this.circle.noStroke();
-      this.c = this.two.makeCircle(0, this.two.height / 2, 20);
+      this.c = this.two.makeCircle(0, this.two.height / 3, 20);
       this.c.fill = 'white';
       this.c.noStroke();
       this.rotator = this.two.makeGroup(this.c);
