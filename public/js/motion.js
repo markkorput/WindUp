@@ -131,7 +131,7 @@
       }
       this.level = Math.min(Math.abs(Math.max(this.minLevel, this.level + decay) + rot), this.maxLevel);
       deltaLevel = this.level - this.levelBase;
-      this.rotator.rotation = thisFrameRot;
+      this.rotator.rotation = thisFrameRot * 0.1;
       maxDeltaLevel = this.maxLevel - this.levelBase;
       factor = this.level / maxDeltaLevel + Math.sin(thisFrameTime * 10 + this.level * 0.0001) * 0.2;
       r = parseInt(this.baseR + factor * this.rFactor);

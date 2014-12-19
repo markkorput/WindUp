@@ -186,7 +186,7 @@ class @Motion
 
 
     # update visuals/audio; scale, rotate and pitch
-    @rotator.rotation = thisFrameRot # deltaRot * 0.002 + @level * 0.0001
+    @rotator.rotation = thisFrameRot * 0.1 # deltaRot * 0.002 + @level * 0.0001
     # @scaler.scale = @level / 270
 
     maxDeltaLevel = (@maxLevel - @levelBase)
